@@ -17,8 +17,6 @@ class HILT:
         a file with the "hhrrYYYYDOY*" filename pattern and open the 
         found csv file. If the file is zipped, it will first be unzipped. 
         If you want to extract the file as well, set extract=True.
-        time_index=True sets the time index of self.hilt to datetime objects
-        otherwise the index is just an enumerated list.
         """
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
@@ -53,9 +51,11 @@ class HILT:
         # Parse the seconds of day time column to datetime objects
         self.parse_time()
         
-        if self.state == 4:
-            self.resolve_counts_state4()
-        return
+        if (self.state == 4) or (self.state == 2):
+            self.data = self.reshape_20ms_state()
+        else:
+            raise NotImplementedError('State 1 and 3 are not implemented yet.')
+        return self.data
         
     def read_zip(self, zip_path, extract=False):
         """
@@ -63,15 +63,13 @@ class HILT:
         will only be opened and not extracted to a text file in the 
         sampex/data/hilt directory. 
         """
-        txt_name = zip_path.stem # Remove the .zip from the zip_path
+        txt_name = zip_path.stem
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             if extract:
                 zip_ref.extractall(zip_path.parent)
-                #self.hilt = pd.read_csv(zip_path.parent / txt_name)
                 self.read_csv(zip_path.parent / txt_name)
             else:
                 with zip_ref.open(txt_name) as f:
-                    # self.hilt = pd.read_csv(f, sep=' ')
                     self.read_csv(f)
         return
     
@@ -82,7 +80,7 @@ class HILT:
         """
         if self.verbose:
             print(f'Loading SAMPEX HILT data from {self.load_date.date()} from {path.name}')
-        self.hilt = pd.read_csv(path, sep=' ')
+        self._hilt_csv = pd.read_csv(path, sep=' ')
         return
 
     def parse_time(self):
@@ -90,14 +88,14 @@ class HILT:
         Parse the seconds of day column to a datetime column. 
         """
         # Check if the seconds are monotonically increasing.
-        np_time = self.hilt['Time'].to_numpy()
+        np_time = self._hilt_csv['Time'].to_numpy()
         if np.any(np_time[1:] < np_time[:-1]):
             raise ValueError(f'The SAMPEX HILT data is not in order for {self.load_date_str}.')
         # Convert seconds of day to a datetime object.
-        day_seconds_obj = pd.to_timedelta(self.hilt['Time'], unit='s')
-        self.hilt['Time'] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
-        self.hilt.index = self.hilt['Time']
-        del(self.hilt['Time'])
+        day_seconds_obj = pd.to_timedelta(self._hilt_csv['Time'], unit='s')
+        self._hilt_csv['Time'] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
+        self._hilt_csv.index = self._hilt_csv['Time']
+        del(self._hilt_csv['Time'])
         return
 
     def _get_state(self):
@@ -134,28 +132,30 @@ class HILT:
             raise ValueError(f'{self.load_date_str} does not match any known HILT state.')
         return state
 
-    def resolve_counts_state4(self):
+    def reshape_20ms_state(self):
         """ 
-        This function resolves the HILT counts to 20 ms resolution assuming 
-        the data is in state4. The counts represent the sum from the 4 SSDs.
-        Data saved in self.hilt_resolved
+        This function reshapes the HILT counts to 20 ms resolution assuming 
+        the data is in state 2 or 4. The counts represent the sum from the 4 SSDs.
+
+        Returns
+        -------
+        DataFrame
+            datetime index and "counts" column.
         """ 
         resolution_ms = 20E-3
         # Resolve the counts using numpy (most efficient way with 
         # static memory allocation)
-        self.counts = np.nan*np.zeros(5*self.hilt.shape[0], dtype=int)
+        self.counts = np.nan*np.zeros(5*self._hilt_csv.shape[0], dtype=int)
         for i in [0, 1, 2, 3]:
-            self.counts[i::5] = self.hilt[f'Rate{i+1}']
+            self.counts[i::5] = self._hilt_csv[f'Rate{i+1}']
         # This line is different because rate5 is 100 ms SSD4 data.
-        self.counts[4::5] = self.hilt['Rate6'] 
+        self.counts[4::5] = self._hilt_csv['Rate6'] 
 
         # Resolve the time array.
-        self.times = np.nan*np.zeros(5*self.hilt.shape[0], dtype=object)
+        self.times = np.nan*np.zeros(5*self._hilt_csv.shape[0], dtype=object)
         for i in [0, 1, 2, 3, 4]:
-            self.times[i::5] = self.hilt.index + pd.to_timedelta(resolution_ms*i, unit='s')
-
-        self.hilt_resolved = pd.DataFrame(data={'counts':self.counts}, index=self.times)
-        return self.counts, self.times
+            self.times[i::5] = self._hilt_csv.index + pd.to_timedelta(resolution_ms*i, unit='s')
+        return pd.DataFrame(data={'counts':self.counts}, index=self.times)
 
 
 class PET:
