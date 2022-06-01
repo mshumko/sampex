@@ -1,4 +1,8 @@
+from datetime import datetime
+
 import matplotlib.pyplot as plt
+
+from sampex import HILT, PET, LICA, Attitude
 
 day = datetime(2007, 1, 20)
 
