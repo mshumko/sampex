@@ -1,0 +1,8 @@
+# Requirements.txt to replicate the exact package environment (not suitable for 
+# users who install this as a component of their work---this will probably
+# cause dependency hell (Google it)).
+matplotlib
+numpy
+pandas
+
+-e . # Install this project
