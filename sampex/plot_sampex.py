@@ -11,9 +11,9 @@ from sampex import HILT, PET, LICA, Attitude
 parser = argparse.ArgumentParser(description=('This script plots the '
         'SAMPEX data'))
 parser.add_argument('date', nargs=3, type=int,
-        help=('This is the FIREBIRD-II campaign number')) 
+        help=('The date to plot the data. Must be in the YYYY MM DD format.')) 
 parser.add_argument('--yscale', type=str, default='linear',
-        help=('Set the yscale. Can be either log or lin.'))
+        help=('Set the yscale. Can be either "linear" (default) or "log".'))
 args = parser.parse_args()
 
 day = datetime(*args.date)

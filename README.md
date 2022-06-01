@@ -1,6 +1,9 @@
 # sampex
-Programs to easily load SAMPEX data. So far it contains loader classes for the HILT, PET, and LICA data, as well as the Attitude files. 
+Classes to easily load SAMPEX data. So far it contains loader classes for the HILT, PET, and LICA data, as well as the Attitude data. 
 
+**_NOTE:_** Heads up that loading some of the data, especially the state 4 HILT counts, takes a decent amount of time due to the sheer number of datetime conversions.
+
+The example plot below sums up what this library does. I generated it with this console command: ```plot_sampex 2007 1 20 --yscale log```
 ![Example SAMPEX data from the HILT, PET, and LICA instruments](sampex_example.png)
 
 # Install
