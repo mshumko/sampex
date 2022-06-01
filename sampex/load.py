@@ -10,9 +10,8 @@ import numpy as np
 
 from sampex import config
 
-class Load_HILT:
-    def __init__(self, load_date, extract=False, 
-                time_index=True, verbose=False):
+class HILT:
+    def __init__(self, load_date, verbose=False):
         """
         Load the HILT data given a date. If this class will look for 
         a file with the "hhrrYYYYDOY*" filename pattern and open the 
@@ -38,7 +37,13 @@ class Load_HILT:
                                         f'\nSearch directory: {pathlib.Path(config["sampex_data_dir"], "hilt")}'
                                         f'\nmatched files: {matched_files}')
         self.file_path = matched_files[0]
+        self.state = self._get_state()
+        return
 
+    def load(self, extract=False):
+        """
+
+        """
         # Load the zipped data and extract if a zip file was found.
         if self.file_path.suffix == 'zip':
             self.read_zip(self.file_path, extract=extract)
@@ -46,7 +51,10 @@ class Load_HILT:
             self.read_csv(self.file_path)
 
         # Parse the seconds of day time column to datetime objects
-        self.parse_time(time_index=time_index)
+        self.parse_time()
+        
+        if self.state == 4:
+            self.resolve_counts_state4()
         return
         
     def read_zip(self, zip_path, extract=False):
@@ -77,10 +85,9 @@ class Load_HILT:
         self.hilt = pd.read_csv(path, sep=' ')
         return
 
-    def parse_time(self, time_index=True):
+    def parse_time(self):
         """ 
         Parse the seconds of day column to a datetime column. 
-        If time_index=True, the time column will become the index.
         """
         # Check if the seconds are monotonically increasing.
         np_time = self.hilt['Time'].to_numpy()
@@ -89,10 +96,43 @@ class Load_HILT:
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self.hilt['Time'], unit='s')
         self.hilt['Time'] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
-        if time_index:
-            self.hilt.index = self.hilt['Time']
-            del(self.hilt['Time'])
+        self.hilt.index = self.hilt['Time']
+        del(self.hilt['Time'])
         return
+
+    def _get_state(self):
+        """
+        Given the date, determine what state the HILT instrument was operating
+        in.
+
+        More info: https://izw1.caltech.edu/sampex/DataCenter/docs/HILThires.html
+        """
+        if (
+            ((int(self.load_date_str) >= 1992187) and 
+             (int(self.load_date_str) <= 1994069))
+            or
+            ((int(self.load_date_str) >= 1996044) and 
+             (int(self.load_date_str) <= 1996220))
+            ):
+            state = 1
+        elif (
+                (int(self.load_date_str) >= 1994137) and 
+                (int(self.load_date_str) <= 1994237)
+             ):
+            state = 2
+        elif (
+                (int(self.load_date_str) >= 1994237) and 
+                (int(self.load_date_str) <= 1995322)
+             ):
+            state = 3
+        elif (
+                (int(self.load_date_str) >= 1996220) and 
+                (int(self.load_date_str) <= 2004182)
+             ):
+            state = 4
+        else:
+            raise ValueError(f'{self.load_date_str} does not match any known HILT state.')
+        return state
 
     def resolve_counts_state4(self):
         """ 
@@ -118,14 +158,14 @@ class Load_HILT:
         return self.counts, self.times
 
 
-class Load_PET:
+class PET:
     def __init__(self, load_date, verbose=False) -> None:
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
         return
 
-    def load_pet(self):
+    def load(self):
         """
         Loads the PET data into self.data.
         """
@@ -168,14 +208,14 @@ class Load_PET:
         return matched_files[0]
 
 
-class Load_LICA:
+class LICA:
     def __init__(self, load_date, verbose=False) -> None:
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
         return
 
-    def load_lica(self):
+    def load(self):
         """
         Loads the LICA data into self.data.
         """
@@ -218,7 +258,7 @@ class Load_LICA:
         return matched_files[0]
 
 
-class Load_Attitude:
+class Attitude:
     def __init__(self, load_date, verbose=False):
         """ 
         This class loads the appropriate SAMEX attitude file, 
@@ -342,31 +382,3 @@ def yeardoy2date(yeardoy):
     into a datetime.datetime object.
     """
     return datetime.strptime(yeardoy, "%Y%j")
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    day = datetime(2007, 1, 20)
-
-    p = Load_PET(day)
-    p.load_pet()
-
-    h = Load_HILT(day)
-    h.resolve_counts_state4()
-    # a = Load_Attitude(day)
-
-    l = Load_LICA(day)
-    l.load_lica()
-
-    fig, ax = plt.subplots(3, sharex=True)
-    ax[0].step(h.hilt_resolved.index, h.hilt_resolved.counts, label='HILT', where='post')
-    ax[1].step(p.data.index, p.data['P1_Rate'], label='PET', where='post')
-    ax[2].step(l.data.index, l.data['Stop'], label='LICA/Stop', where='post')
-
-    ax[0].set(ylabel='HILT')
-    ax[1].set(ylabel='PET')
-    ax[2].set(ylabel='LICA/Stop')
-    ax[-1].set_xlabel('Time')
-
-    plt.suptitle(f'SAMPEX | {day.date()}')
-    plt.show()

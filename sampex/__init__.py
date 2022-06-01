@@ -2,6 +2,11 @@ import warnings
 import pathlib
 import configparser
 
+from sampex.load import HILT
+from sampex.load import PET
+from sampex.load import LICA
+from sampex.load import Attitude
+
 __version__ = '0.0.1'
 
 # Load the configuration settings.
