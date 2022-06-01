@@ -301,6 +301,36 @@ class PET:
 
 
 class LICA:
+    """
+    Load the LICA data given a date. If this class will look for 
+    a file with the "lhrrYYYYDOY*" filename pattern. You will
+    need to call the load() method to load the data into memory.
+
+    Once loaded, you can access the timestamps with LICA['time']. 
+    You can access the counts similarly, but the column names 
+    must be one of these: D4+D3 D2+D1 Stop Start Low_Pri, or High_Pri.
+    Alternatively, the LICA.data attribute is a pd.DataFrame containing 
+    both the timestamps and counts.
+
+
+    Example
+    -------
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(2007, 1, 20)
+
+    l = sampex.LICA(day)
+    l.load()
+
+    fig, ax = plt.subplots()
+    ax.step(l['time'], l['stop'], label='PET', where='post')
+    plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
+    plt.show()
+    """
     def __init__(self, load_date, verbose=False) -> None:
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
@@ -311,7 +341,7 @@ class LICA:
         """
         Loads the LICA data into self.data.
         """
-        lica_path = self._find_file(self.load_date)
+        lica_path = self._find_file()
         self.data = pd.read_csv(lica_path, sep=' ')
         self.parse_time()
         return self.data
@@ -333,7 +363,7 @@ class LICA:
             del(self.data['Time'])
         return
 
-    def _find_file(self, day):
+    def _find_file(self):
         """
         Recursively searches the config['sampex_data_dir']/pet/ directory for the file.
         """
@@ -348,6 +378,21 @@ class LICA:
                                         f'\nSearch directory: {pathlib.Path(config["sampex_data_dir"], "lica")}'
                                         f'\nmatched files: {matched_files}')
         return matched_files[0]
+
+    def __getitem__(self, _slice):
+        """
+        Allows you to access data via, for example, LICA['time'].
+        """
+        if isinstance(_slice, str):
+            if 'time' in _slice.lower():
+                return self.data.index
+            else:    
+                for column in self.data.columns:
+                    if _slice in column.lower():
+                        return self.data[column].to_numpy()
+        else:
+            raise IndexError(f'Slices other than "time" or {self.columns}')
+
 
 
 class Attitude:

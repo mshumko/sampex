@@ -44,3 +44,41 @@ ax.step(h['time'], h['counts'], label='HILT', where='post')
 plt.suptitle(f'SAMPEX-HILT | {day.date()}')
 plt.show()
 ```
+
+## Example 2: Load and plot the PET data
+```python
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+
+import sampex
+
+day = datetime(2007, 1, 20)
+
+p = sampex.PET(day)
+p.load()
+
+fig, ax = plt.subplots()
+ax.step(p['time'], p['counts'], label='PET', where='post')
+plt.suptitle(f'SAMPEX-PET | {day.date()}')
+plt.show()
+```
+
+## Example 3: Load and plot the LICA data
+```python
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+
+import sampex
+
+day = datetime(2007, 1, 20)
+
+l = sampex.LICA(day)
+l.load()
+
+fig, ax = plt.subplots()
+ax.step(l['time'], l['stop'], label='PET', where='post')
+plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
+plt.show()
+```
