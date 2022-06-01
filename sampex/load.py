@@ -15,6 +15,35 @@ except ImportError as err:
     raise
 
 class HILT:
+    """
+    Load the HILT data given a date. If this class will look for 
+    a file with the "hhrrYYYYDOY*" filename pattern. You will
+    need to call the load() method to load the data into memory.
+
+    Once loaded, you can access the timestamps with HILT['time'] and
+    counts array with HILT['counts']. Alternatively, the HILT.data
+    attribute is a pd.DataFrame containing both the timestamps and 
+    counts.
+
+
+    Example
+    -------
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(2007, 1, 20)
+
+    h = sampex.HILT(day)
+    h.load()
+
+    fig, ax = plt.subplots()
+    ax.step(h['time'], h['counts'], label='HILT', where='post')
+    plt.suptitle(f'SAMPEX-HILT | {day.date()}')
+    plt.show()
+    """
     def __init__(self, load_date, verbose=False):
         """
         Load the HILT data given a date. If this class will look for 
@@ -44,7 +73,13 @@ class HILT:
 
     def load(self, extract=False):
         """
+        Call this to load and reshape the HILT data into datetime timestamps
+        and counts.
 
+        Returns
+        -------
+        pd.DataFrame
+            The HILT data. 
         """
         # Load the zipped data and extract if a zip file was found.
         if self.file_path.suffix == 'zip':
