@@ -211,6 +211,35 @@ class HILT:
 
 
 class PET:
+    """
+    Load the PET data given a date. If this class will look for 
+    a file with the "phrrYYYYDOY*" filename pattern. You will
+    need to call the load() method to load the data into memory.
+
+    Once loaded, you can access the timestamps with PET['time'] and
+    counts array with PET['counts']. Alternatively, the PET.data
+    attribute is a pd.DataFrame containing both the timestamps and 
+    counts (called P1_Rate in the original data).
+
+
+    Example
+    -------
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(2007, 1, 20)
+
+    p = sampex.PET(day)
+    p.load()
+
+    fig, ax = plt.subplots()
+    ax.step(p['time'], p['counts'], label='PET', where='post')
+    plt.suptitle(f'SAMPEX-PET | {day.date()}')
+    plt.show()
+    """
     def __init__(self, load_date, verbose=False) -> None:
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
@@ -223,13 +252,13 @@ class PET:
         """
         pet_path = self._find_file(self.load_date)
         self.data = pd.read_csv(pet_path, sep=' ')
+        self.data = self.data.rename(columns={'P1_Rate':'counts'})
         self.parse_time()
         return self.data
 
-    def parse_time(self, time_index=True):
+    def parse_time(self):
         """ 
         Parse the seconds of day column to a datetime column. 
-        If time_index=True, the time column will become the index.
         """
         # Check if the seconds are monotonically increasing.
         np_time = self.data['Time'].to_numpy()
@@ -238,10 +267,21 @@ class PET:
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self.data['Time'], unit='s')
         self.data['Time'] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
-        if time_index:
-            self.data.index = self.data['Time']
-            del(self.data['Time'])
+        self.data.index = self.data['Time']
+        del(self.data['Time'])
         return
+
+    def __getitem__(self, _slice):
+        """
+        Allows you to access data via PET['time'] or PET['counts'] 
+        """
+        if isinstance(_slice, str):
+            if 'time' in _slice.lower():
+                return self.data.index
+            if 'count' in _slice.lower():
+                return self.data['counts'].to_numpy()
+        else:
+            raise IndexError('Slices other than "time" or "counts" is not allowed.')
 
     def _find_file(self, day):
         """

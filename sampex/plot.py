@@ -21,7 +21,7 @@ l.load()
 
 fig, ax = plt.subplots(3, sharex=True)
 ax[0].step(h['time'], h['counts'], label='HILT', where='post')
-ax[1].step(p.data.index, p.data['P1_Rate'], label='PET', where='post')
+ax[1].step(p['time'], p.data['counts'], label='PET', where='post')
 ax[2].step(l.data.index, l.data['Stop'], label='LICA/Stop', where='post')
 
 ax[0].set(ylabel='HILT')
