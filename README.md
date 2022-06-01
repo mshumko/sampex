@@ -1,6 +1,8 @@
 # sampex
 Programs to easily load SAMPEX data. So far it contains loader classes for the HILT, PET, and LICA data, as well as the Attitude files. 
 
+![Example SAMPEX data from the HILT, PET, and LICA instruments](sampex_example.png)
+
 # Install
 ```bash
 git clone git@github.com:mshumko/sampex.git
