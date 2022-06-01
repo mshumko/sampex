@@ -56,6 +56,19 @@ class HILT:
         else:
             raise NotImplementedError('State 1 and 3 are not implemented yet.')
         return self.data
+
+    def __getitem__(self, _slice):
+        """
+        Allows you to access data via HILT['time'] or HILT['counts'] 
+        """
+        if isinstance(_slice, str):
+            if 'time' in _slice.lower():
+                return self.data.index
+            if 'count' in _slice.lower():
+                return self.data['counts']
+        else:
+            raise IndexError('Slices other than "time" or "counts" is not allowed.')
+
         
     def read_zip(self, zip_path, extract=False):
         """
