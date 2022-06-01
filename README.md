@@ -82,3 +82,22 @@ ax.step(l['time'], l['stop'], label='PET', where='post')
 plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
 plt.show()
 ```
+
+## Example 4: Load and plot the Attitude data
+```python
+from datetime import datetime
+
+import matplotlib.pyplot as plt
+
+import sampex
+
+day = datetime(2007, 1, 20)
+
+a = sampex.Attitude(day)
+a.load()
+
+fig, ax = plt.subplots()
+ax.plot(a['time'], a['Altitude'], label='SAMPEX Altitude')
+plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+plt.show()
+```

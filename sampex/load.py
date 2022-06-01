@@ -388,7 +388,7 @@ class LICA:
                 return self.data.index
             else:    
                 for column in self.data.columns:
-                    if _slice in column.lower():
+                    if _slice.lower() in column.lower():
                         return self.data[column].to_numpy()
         else:
             raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
@@ -400,6 +400,24 @@ class Attitude:
     Load the appropriate SAMEX attitude file, 
     parse the complicated header and convert the time 
     columns into datetime objects
+
+    Example
+    -------
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(2007, 1, 20)
+
+    a = sampex.Attitude(day)
+    a.load()
+
+    fig, ax = plt.subplots()
+    ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
+    plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+    plt.show()
     """ 
     def __init__(self, load_date, verbose=False):
         self.load_date = load_date
@@ -453,8 +471,9 @@ class Attitude:
                 return self.data.index
             else:    
                 for column in self.data.columns:
-                    if _slice in column.lower():
+                    if _slice.lower() in column.lower():
                         return self.data[column].to_numpy()
+                raise KeyError(f'{_slice} is an invalid column: Valid columns are: {self.data.columns} ')
         else:
             raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
 
@@ -530,3 +549,20 @@ def yeardoy2date(yeardoy):
     into a datetime.datetime object.
     """
     return datetime.strptime(yeardoy, "%Y%j")
+
+if __name__ == '__main__':
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(2007, 1, 20)
+
+    a = sampex.Attitude(day)
+    a.load()
+
+    fig, ax = plt.subplots()
+    ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
+    plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+    plt.show()
