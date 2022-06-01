@@ -1,5 +1,5 @@
 # sampex
-Programs to download and load SAMPEX data. So far it contains loader classes for the HILT, PET, and LICA data, as well as the Attitude files. 
+Programs to easily load SAMPEX data. So far it contains loader classes for the HILT, PET, and LICA data, as well as the Attitude files. 
 
 # Install
 ```bash
@@ -16,7 +16,7 @@ or
 python3 -m pip install -r requirements.txt 
 ```
 # Get started
-To load the SAMPEX data you'll need to do two things:
+Before you can load the SAMPEX data you'll need to do two things:
 
 1. Download the SAMPEX data to a folder. wget is great for this. Write down the top-level SAMPEX data directory as you'll need it in step 2.
 2. Configure this package as it needs to know what directory to begin searching for the SAMPEX data. 
