@@ -1,3 +1,6 @@
+import argparse
+# import importlib
+# import warnings
 from datetime import datetime
 
 import matplotlib.pyplot as plt
@@ -10,14 +13,14 @@ p = PET(day)
 p.load()
 
 h = HILT(day)
-h.resolve_counts_state4()
+h.load()
 # a = Load_Attitude(day)
 
 l = LICA(day)
 l.load()
 
 fig, ax = plt.subplots(3, sharex=True)
-ax[0].step(h.hilt_resolved.index, h.hilt_resolved.counts, label='HILT', where='post')
+ax[0].step(h['time'], h['counts'], label='HILT', where='post')
 ax[1].step(p.data.index, p.data['P1_Rate'], label='PET', where='post')
 ax[2].step(l.data.index, l.data['Stop'], label='LICA/Stop', where='post')
 

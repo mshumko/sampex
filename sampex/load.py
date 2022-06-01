@@ -1,5 +1,4 @@
 # This program loads the HILT data and parses it into a nice format
-import argparse
 import pathlib
 import zipfile
 import re
@@ -8,7 +7,12 @@ from datetime import datetime, date
 import pandas as pd
 import numpy as np
 
-from sampex import config
+try:
+    from sampex import config
+except ImportError as err:
+    # warnings.warn('sampex is not configured. Run "python3 -m sampex config"')
+    print(err)
+    raise
 
 class HILT:
     def __init__(self, load_date, verbose=False):
@@ -65,7 +69,7 @@ class HILT:
             if 'time' in _slice.lower():
                 return self.data.index
             if 'count' in _slice.lower():
-                return self.data['counts']
+                return self.data['counts'].to_numpy()
         else:
             raise IndexError('Slices other than "time" or "counts" is not allowed.')
 
@@ -138,7 +142,7 @@ class HILT:
             state = 3
         elif (
                 (int(self.load_date_str) >= 1996220) and 
-                (int(self.load_date_str) <= 2004182)
+                (int(self.load_date_str) <= 2012312)
              ):
             state = 4
         else:

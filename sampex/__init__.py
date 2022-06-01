@@ -2,11 +2,6 @@ import warnings
 import pathlib
 import configparser
 
-from sampex.load import HILT
-from sampex.load import PET
-from sampex.load import LICA
-from sampex.load import Attitude
-
 __version__ = '0.0.1'
 
 # Load the configuration settings.
@@ -24,3 +19,11 @@ if 'Paths' in settings:
             'Did you run "python3 -m sampex config"?')
 
     config = {'sampex_code_dir': sampex_code_dir, 'sampex_data_dir': sampex_data_dir}
+
+else:
+    warnings.warn('sampex is not configured. Run "python3 -m sampex config"')
+
+from sampex.load import HILT
+from sampex.load import PET
+from sampex.load import LICA
+from sampex.load import Attitude
