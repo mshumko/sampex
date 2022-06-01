@@ -391,56 +391,34 @@ class LICA:
                     if _slice in column.lower():
                         return self.data[column].to_numpy()
         else:
-            raise IndexError(f'Slices other than "time" or {self.columns}')
+            raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
 
 
 
 class Attitude:
+    """ 
+    Load the appropriate SAMEX attitude file, 
+    parse the complicated header and convert the time 
+    columns into datetime objects
+    """ 
     def __init__(self, load_date, verbose=False):
-        """ 
-        This class loads the appropriate SAMEX attitude file, 
-        parses the complex header and converts the time 
-        columns into datetime objects
-        """
         self.load_date = load_date
         self.load_date_str = date2yeardoy(load_date)
         self.verbose = verbose
 
         # Find the appropriate attitude file.
-        self.find_matching_attitude_file()
-
-        # Load the data into a dataframe
-        self.load_attitude()
+        self._find_attitude_file()
         return
 
-    def find_matching_attitude_file(self):
-        """ 
-        Uses pathlib.rglob to find the attitude file that contains 
-        the DOY from self.load_date
-        """
-        attitude_files = sorted(list(pathlib.Path(config['sampex_data_dir'], 'attitude').rglob('PSSet_6sec_*_*.txt')))
-        start_end_dates = [re.findall(r'\d+', str(f.name))[1:] for f in attitude_files]
-        
-        current_date_int = int(self.load_date_str)
-        self.attitude_file = None
-
-        for f, (start_date, end_date) in zip(attitude_files, start_end_dates):
-            if (int(start_date) <= current_date_int) and (int(end_date) >= current_date_int):
-                self.attitude_file = f
-        if self.attitude_file is None:
-            raise ValueError(f'A matched file not found in {pathlib.Path(config["sampex_data_dir"], "attitude")} '
-                             f'for YEARDOY={self.load_date_str}')
-        return self.attitude_file
-
-    def load_attitude(self, columns='default', remove_old_time_cols=True):
+    def load(self, columns='default', remove_old_time_cols=True):
         """ 
         Loads the attitude file. Only columns specified in the columns arg are 
         loaded to conserve memory. The year, day_of_year, and sec_of_day columns
         are used to construct a list of datetime objects that are assigned to
-        self.attitude index. 
+        self.data index. 
 
         If remove_old_time_cols is True, the year, DOY, and second columns are 
-        delited to conserve memory.
+        deleted to conserve memory.
         """
         if self.verbose:
             print(f'Loading SAMPEX attitude data from {self.load_date.date()} from'
@@ -458,13 +436,46 @@ class Attitude:
             self._skip_header(f)
             # Save the rest to a file using columns specified by the columns.keys() with the 
             # columns values for the column names.
-            self.attitude = pd.read_csv(f, delim_whitespace=True,
+            self.data = pd.read_csv(f, delim_whitespace=True,
                                         names=columns.values(), 
                                         usecols=columns.keys())
         self._parse_attitude_datetime(remove_old_time_cols)
         # Transform the longitudes from (0 -> 360) to (-180 -> 180).
-        self.attitude['GEO_Long'] = np.mod(self.attitude['GEO_Long'] + 180, 360) - 180
-        return
+        self.data['GEO_Long'] = np.mod(self.data['GEO_Long'] + 180, 360) - 180
+        return self.data
+
+    def __getitem__(self, _slice):
+        """
+        Allows you to access data via, for example, Attitude['time'].
+        """
+        if isinstance(_slice, str):
+            if 'time' in _slice.lower():
+                return self.data.index
+            else:    
+                for column in self.data.columns:
+                    if _slice in column.lower():
+                        return self.data[column].to_numpy()
+        else:
+            raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
+
+    def _find_attitude_file(self):
+        """ 
+        Use pathlib.rglob to find the attitude file that contains 
+        the DOY from self.load_date
+        """
+        attitude_files = sorted(list(pathlib.Path(config['sampex_data_dir'], 'attitude').rglob('PSSet_6sec_*_*.txt')))
+        start_end_dates = [re.findall(r'\d+', str(f.name))[1:] for f in attitude_files]
+        
+        current_date_int = int(self.load_date_str)
+        self.attitude_file = None
+
+        for f, (start_date, end_date) in zip(attitude_files, start_end_dates):
+            if (int(start_date) <= current_date_int) and (int(end_date) >= current_date_int):
+                self.attitude_file = f
+        if self.attitude_file is None:
+            raise ValueError(f'A matched file not found in {pathlib.Path(config["sampex_data_dir"], "attitude")} '
+                             f'for YEARDOY={self.load_date_str}')
+        return self.attitude_file
 
     def _skip_header(self, f):
         """ 
@@ -487,14 +498,14 @@ class Attitude:
         """
         # Parse the dates by first making YYYY-DOY strings.
         year_doy = [f'{year}-{doy}' for year, doy in 
-                    self.attitude[['Year', 'Day-of-year']].values]
+                    self.data[['Year', 'Day-of-year']].values]
         # Convert to date objects
         attitude_dates=pd.to_datetime(year_doy, format='%Y-%j')
         # Now add the seconds of day to complete the date and time.
-        self.attitude.index = attitude_dates + pd.to_timedelta(self.attitude['Sec_of_day'], unit='s')
+        self.data.index = attitude_dates + pd.to_timedelta(self.data['Sec_of_day'], unit='s')
         # Optionally remove duplicate columns to conserve memory.
         if remove_old_time_cols:
-            self.attitude.drop(['Year', 'Day-of-year', 'Sec_of_day'], axis=1, inplace=True)
+            self.data.drop(['Year', 'Day-of-year', 'Sec_of_day'], axis=1, inplace=True)
         return
 
 
