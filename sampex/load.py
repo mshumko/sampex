@@ -559,10 +559,10 @@ if __name__ == '__main__':
 
     day = datetime(2007, 1, 20)
 
-    a = sampex.Attitude(day)
-    a.load()
+    h = sampex.HILT(day)
+    h.load()
 
     fig, ax = plt.subplots()
-    ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
-    plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+    ax.step(h['time'], h['counts'], label='HILT', where='post')
+    plt.suptitle(f'SAMPEX-HILT | {day.date()}')
     plt.show()
