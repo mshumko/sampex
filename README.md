@@ -4,9 +4,11 @@ Programs to download and load SAMPEX data. So far it contains loader classes for
 # Install
 ```bash
 git clone git@github.com:mshumko/sampex.git
-cd project_template
+cd sampex
+```
 
-# Then one of these (see comment in requirement.txt):
+Then one of these commands to install sampex into a virtual environment:
+```bash
 python3 -m pip install -e .
 ```
 or 
