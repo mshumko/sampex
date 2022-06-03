@@ -5,4 +5,8 @@ matplotlib
 numpy
 pandas
 
+# For development
+bump2version
+black==18.5b0 # Newer versions have seg faults or ImportErrors.
+
 -e . # Install this project
