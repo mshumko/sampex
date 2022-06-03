@@ -7,6 +7,12 @@ The example plot below sums up what this library does. I generated it with this 
 ![Example SAMPEX data from the HILT, PET, and LICA instruments](sampex_example.png)
 
 # Install
+Installing this package is as simple as
+```bash
+python3 -m pip install sampex
+```
+
+If you want to develop this package, run
 ```bash
 git clone git@github.com:mshumko/sampex.git
 cd sampex
