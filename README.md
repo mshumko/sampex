@@ -4,7 +4,7 @@ Classes to easily load SAMPEX data. So far it contains loader classes for the HI
 **_NOTE:_** Heads up that loading some of the data, especially the state 4 HILT counts, takes a decent amount of time due to the sheer number of datetime conversions.
 
 The example plot below sums up what this library does. I generated it with this console command: ```plot_sampex 2007 1 20 --yscale log```
-![Example SAMPEX data from the HILT, PET, and LICA instruments](sampex_example.png)
+![Example SAMPEX data from the HILT, PET, and LICA instruments](https://github.com/mshumko/sampex/blob/aba90331438b1cc1152e99469df5a65847bc9535/sampex_example.png?raw=true)
 
 # Install
 Installing this package is as simple as
