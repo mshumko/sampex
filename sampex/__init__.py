@@ -2,7 +2,7 @@ import warnings
 import pathlib
 import configparser
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 # Load the configuration settings.
 here = pathlib.Path(__file__).parent.resolve()
