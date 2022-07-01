@@ -19,19 +19,32 @@ def main():
         default="linear",
         help=('Set the yscale. Can be either "linear" (default) or "log".'),
     )
+    parser.add_argument(
+        "--instrument",
+        type=str,
+        default="all",
+        help=('Determine what instruments to plot. Default is all (HILT, PET, and LICA). '
+              'you can select one of these instruments to plot as well.'),
+    )
     args = parser.parse_args()
 
     day = datetime(*args.date)
 
     # Load data
-    p = PET(day)
-    p.load()
-    h = HILT(day)
-    h.load()
+    if args.instrument.lower() == 'all' or args.instrument.lower() == 'pet':
+        p = PET(day)
+        p.load()
+    if args.instrument.lower() == 'all' or args.instrument.lower() == 'hilt':
+        h = HILT(day)
+        h.load()
+    if args.instrument.lower() == 'all' or args.instrument.lower() == 'lica':
+        l = LICA(day)
+        l.load()
+    if args.instrument.lower() not in ['all', 'hilt', 'pet', 'lica']:
+        raise ValueError(f'{args.instrument} is no a valid instrument. It can '
+                         f'be "all", "HILT", "PET", or "LICA"')
     a = Attitude(day)
     a.load()
-    l = LICA(day)
-    l.load()
 
     # Plot it
     def format_fn(tick_val, tick_pos):
@@ -51,22 +64,44 @@ def main():
         label = "\n".join(values)
         return label
 
+    if args.instrument.lower() == 'all':
+        _, ax = plt.subplots(3, sharex=True, figsize=(7, 7))
+        ax[0].step(h["time"], h["counts"], label="HILT", where="post")
+        ax[1].step(p["time"], p.data["counts"], label="PET", where="post")
+        ax[2].step(l["time"], l["Stop"], label="LICA-Stop", where="post")
 
-    fig, ax = plt.subplots(3, sharex=True, figsize=(7, 7))
-    ax[0].step(h["time"], h["counts"], label="HILT", where="post")
-    ax[1].step(p["time"], p.data["counts"], label="PET", where="post")
-    ax[2].step(l["time"], l["Stop"], label="LICA-Stop", where="post")
-
-    ax[0].set(ylabel="HILT")
-    ax[1].set(ylabel="PET")
-    ax[2].set(ylabel="LICA/Stop")
-    ax[-1].set_xlabel("Time")
+        ax[0].set(ylabel="HILT")
+        ax[1].set(ylabel="PET")
+        ax[2].set(ylabel="LICA/Stop")
+        ax[-1].set_xlabel("Time")
+    elif args.instrument.lower() == 'hilt':
+        _, ax = plt.subplots(figsize=(7, 7))
+        ax.step(h["time"], h["counts"], label="HILT", where="post")
+        ax.set(ylabel="HILT")
+        ax.set_xlabel("Time")
+    elif args.instrument.lower() == 'pet':
+        _, ax = plt.subplots(figsize=(7, 7))
+        ax.step(p["time"], p.data["counts"], label="PET", where="post")
+        ax.set(ylabel="PET")
+        ax.set_xlabel("Time")
+    elif args.instrument.lower() == 'lica':
+        _, ax = plt.subplots(figsize=(7, 7))
+        ax.step(l["time"], l["Stop"], label="LICA-Stop", where="post")
+        ax.set(ylabel="LICA")
+        ax.set_xlabel("Time")
 
     x_labels = {"L": "L_Shell", "MLT": "MLT", "Geo Lat": "GEO_Lat", "Geo Lon": "GEO_Long"}
+    if args.instrument.lower() != 'all':
+        ax = [ax] # For consistency to avoid calling "ax" vs "ax[0]".
+        y_offset = -0.02
+    else:
+        y_offset = -0.06
+    
+
     ax[-1].xaxis.set_major_formatter(FuncFormatter(format_fn))
     ax[-1].set_xlabel("\n".join(["Time"] + list(x_labels.keys())))
     # ax[-1].xaxis.set_minor_locator(matplotlib.dates.SecondLocator())
-    ax[-1].xaxis.set_label_coords(-0.1, -0.06)
+    ax[-1].xaxis.set_label_coords(-0.1, y_offset)
 
     for ax_i in ax:
         ax_i.format_coord = lambda x, y: "{}, {}".format(
