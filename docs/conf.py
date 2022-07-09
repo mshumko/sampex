@@ -35,7 +35,6 @@ extensions = [
     'sphinx.ext.linkcode',
     'sphinx_copybutton',
     # 'nbsphinx',
-    'numpydoc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
