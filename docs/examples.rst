@@ -4,6 +4,19 @@ Examples
 
 This example gallery using the best practices and illustrates functionality throughout `sampex`. 
 
+Command line to plot the SAMPEX data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`sampex` includes a relatively simple command line script to plot the data from all three instruments.
+
+.. figure:: ./_static/sampex_plot.png
+    :alt: A plot showing the SAMPEX data from HILT, PET, and LICA taken on 2007-01-20.
+    :width: 75%
+
+.. code:: bash
+
+    plot_sampex 2007 1 20 --yscale log
+
+
 Load and plot the HILT data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -70,7 +83,7 @@ Load and plot the Attitude data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
-    
+
     >>> from datetime import datetime
 
     >>> import matplotlib.pyplot as plt
