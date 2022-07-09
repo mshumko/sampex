@@ -9,4 +9,10 @@ pandas
 bump2version
 black==18.5b0 # Newer versions have seg faults or ImportErrors.
 
+# For docs
+# Need to install Sphinx on your OS. See https://www.sphinx-doc.org/en/master/usage/installation.html
+sphinx-copybutton==0.3.1
+furo==2022.6.21
+nbsphinx==0.8.6
+
 -e . # Install this project
