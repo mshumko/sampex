@@ -67,6 +67,7 @@ napoleon_use_admonition_for_examples = True
 copybutton_prompt_text = ">>> "
 
 autodoc_typehints = "none"
+autodoc_mock_imports = ["sampex"]
 
 def linkcode_resolve(domain, info):
     if domain != 'py':
