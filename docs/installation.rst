@@ -1,3 +1,6 @@
+.. role:: python(code)
+   :language: python
+
 ============
 Installation
 ============
@@ -13,8 +16,8 @@ Configuration
 -------------
 Before you can use `sampex` you'll need to
 
-1. **Download the SAMPEX data `data`_ **. Currently `sampex` doesn't download data for you, so you will need to download it yourself (via wget or something similar) and save the data directory for step 2.
-2. **Configure `sampex` where to find that data.** Run `python3 -m sampex config` and answer the prompt. The configuration paths are accessible via the `sampex.config` dictionary.
+1. Download the SAMPEX `data`_. Currently `sampex` doesn't download data for you, so you will need to download it yourself (via wget or something similar) and save the data directory for step 2.
+2. Configure :python:`sampex` where to find that data. Run :python:`python3 -m sampex config` and answer the prompt. The configuration paths are accessible via the :python:`sampex.config` dictionary.
 
 .. _data: https://izw1.caltech.edu/sampex/DataCenter/data.html
 

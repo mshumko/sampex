@@ -17,9 +17,9 @@ except ImportError as err:
 
 class HILT:
     """
-    Load the HILT data given a date. If this class will look for 
-    a file with the "hhrrYYYYDOY*" filename pattern. You will
-    need to call the load() method to load the data into memory.
+    Load a day of HILT counts and convert the date and time to ``pd.Timestamp`` 
+    objects. You need to explicitly call the ``.load()`` method to load the 
+    file into memory.
 
     Once loaded, you can access the timestamps with HILT['time'] and
     counts array with HILT['counts']. Alternatively, the HILT.data
@@ -29,21 +29,21 @@ class HILT:
 
     Example
     -------
-    from datetime import datetime
-
-    import matplotlib.pyplot as plt
-
-    import sampex
-
-    day = datetime(2007, 1, 20)
-
-    h = sampex.HILT(day)
-    h.load()
-
-    fig, ax = plt.subplots()
-    ax.step(h['time'], h['counts'], label='HILT', where='post')
-    plt.suptitle(f'SAMPEX-HILT | {day.date()}')
-    plt.show()
+    |from datetime import datetime
+    |
+    |import matplotlib.pyplot as plt
+    |
+    |import sampex
+    |
+    |day = datetime(2007, 1, 20)
+    |
+    |h = sampex.HILT(day)
+    |h.load()
+    |
+    |fig, ax = plt.subplots()
+    |ax.step(h['time'], h['counts'], label='HILT', where='post')
+    |plt.suptitle(f'SAMPEX-HILT | {day.date()}')
+    |plt.show()
     """
 
     def __init__(self, load_date, verbose=False):
@@ -200,33 +200,32 @@ class HILT:
 
 class PET:
     """
-    Load the PET data given a date. If this class will look for 
-    a file with the "phrrYYYYDOY*" filename pattern. You will
-    need to call the load() method to load the data into memory.
+    Load a day of PET counts and convert the date and time to ``pd.Timestamp`` 
+    objects. You need to explicitly call the ``.load()`` method to load the 
+    file into memory.
 
     Once loaded, you can access the timestamps with PET['time'] and
     counts array with PET['counts']. Alternatively, the PET.data
     attribute is a pd.DataFrame containing both the timestamps and 
     counts (called P1_Rate in the original data).
 
-
     Example
     -------
-    from datetime import datetime
-
-    import matplotlib.pyplot as plt
-
-    import sampex
-
-    day = datetime(2007, 1, 20)
-
-    p = sampex.PET(day)
-    p.load()
-
-    fig, ax = plt.subplots()
-    ax.step(p['time'], p['counts'], label='PET', where='post')
-    plt.suptitle(f'SAMPEX-PET | {day.date()}')
-    plt.show()
+    |from datetime import datetime
+    |
+    |import matplotlib.pyplot as plt
+    |
+    |import sampex
+    |
+    |day = datetime(2007, 1, 20)
+    |
+    |p = sampex.PET(day)
+    |p.load()
+    |
+    |fig, ax = plt.subplots()
+    |ax.step(p['time'], p['counts'], label='PET', where='post')
+    |plt.suptitle(f'SAMPEX-PET | {day.date()}')
+    |plt.show()
     """
 
     def __init__(self, load_date, verbose=False) -> None:
@@ -291,11 +290,11 @@ class PET:
 
 class LICA:
     """
-    Load the LICA data given a date. If this class will look for 
-    a file with the "lhrrYYYYDOY*" filename pattern. You will
-    need to call the load() method to load the data into memory.
+    Load a day of LICA counts and convert the date and time to ``pd.Timestamp`` 
+    objects. You need to explicitly call the ``.load()`` method to load the 
+    file into memory.
 
-    Once loaded, you can access the timestamps with LICA['time']. 
+    Once loaded, you can access the timestamps with LICA['time']
     You can access the counts similarly, but the column names 
     must be one of these: D4+D3 D2+D1 Stop Start Low_Pri, or High_Pri.
     Alternatively, the LICA.data attribute is a pd.DataFrame containing 
@@ -304,21 +303,21 @@ class LICA:
 
     Example
     -------
-    from datetime import datetime
-
-    import matplotlib.pyplot as plt
-
-    import sampex
-
-    day = datetime(2007, 1, 20)
-
-    l = sampex.LICA(day)
-    l.load()
-
-    fig, ax = plt.subplots()
-    ax.step(l['time'], l['stop'], label='PET', where='post')
-    plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
-    plt.show()
+    |from datetime import datetime
+    |
+    |import matplotlib.pyplot as plt
+    |
+    |import sampex
+    |
+    |day = datetime(2007, 1, 20)
+    |
+    |l = sampex.LICA(day)
+    |l.load()
+    |
+    |fig, ax = plt.subplots()
+    |ax.step(l['time'], l['stop'], label='PET', where='post')
+    |plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
+    |plt.show()
     """
 
     def __init__(self, load_date, verbose=False) -> None:
@@ -386,27 +385,39 @@ class LICA:
 
 class Attitude:
     """ 
-    Load the appropriate SAMEX attitude file, 
-    parse the complicated header and convert the time 
-    columns into datetime objects
+    Load a SAMEX attitude file that contains the desired day and convert 
+    the date and time to ``pd.Timestamp``. You need to explicitly call 
+    the ``.load()`` method to load the file into memory.
+
+    Once loaded, you can access the timestamps with Attitude['time']
+    You can access the other variables similarly. Alternatively, the 
+    Attitude.data attribute is a pd.DataFrame containing both the 
+    timestamps and attitude variables.
+
+    Notes
+    -----
+    Attitude files span multiple days.
+
+    Longitudes are transformed from (0 -> 360) to (-180 -> 180).
+    
 
     Example
     -------
-    from datetime import datetime
-
-    import matplotlib.pyplot as plt
-
-    import sampex
-
-    day = datetime(2007, 1, 20)
-
-    a = sampex.Attitude(day)
-    a.load()
-
-    fig, ax = plt.subplots()
-    ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
-    plt.suptitle(f'SAMPEX Altitude | {day.date()}')
-    plt.show()
+    |from datetime import datetime
+    |
+    |import matplotlib.pyplot as plt
+    |
+    |import sampex
+    |
+    |day = datetime(2007, 1, 20)
+    |
+    |a = sampex.Attitude(day)
+    |a.load()
+    |
+    |fig, ax = plt.subplots()
+    |ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
+    |plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+    |plt.show()
     """
 
     def __init__(self, load_date, verbose=False):
@@ -421,12 +432,14 @@ class Attitude:
     def load(self, columns="default", remove_old_time_cols=True):
         """ 
         Loads the attitude file. Only columns specified in the columns arg are 
-        loaded to conserve memory. The year, day_of_year, and sec_of_day columns
-        are used to construct a list of datetime objects that are assigned to
-        self.data index. 
+        loaded to conserve memory.
 
-        If remove_old_time_cols is True, the year, DOY, and second columns are 
-        deleted to conserve memory.
+        Notes
+        -----
+        The other than ``time``, the loaded columns are: GEO_Radius, GEO_Long, 
+        GEO_Lat, Altitude, L_Shell, MLT, Mirror_Alt, Pitch, and Att_Flag
+
+        Longitudes are transformed from (0 -> 360) to (-180 -> 180).
         """
         if self.verbose:
             print(
@@ -535,9 +548,19 @@ class Attitude:
 
 
 def date2yeardoy(day):
-    """ 
-    Converts a date in a string, datetime.datetime or a pd.Timestamp format into a
-    "YYYYDOY" string that are used for the SAMPEX names.
+    """
+    Converts a date into the "YYYYDOY" string format used extensively 
+    for the SAMPEX file names.
+
+    Parameters
+    ----------
+    day: str, datetime.datetime, pd.Timestamp
+         A date.
+
+    Returns
+    -------
+    str
+        The corresponding YYYDOY string.
     """
     if isinstance(day, str):
         day = pd.to_datetime(day)
@@ -550,10 +573,20 @@ def date2yeardoy(day):
     return f"{day.year}{doy}"
 
 
-def yeardoy2date(yeardoy):
+def yeardoy2date(yeardoy: str):
     """
-    Converts a date in the year day-of-year format (YEARDOY)
+    Converts a date in the (year day-of-year) format (YEARDOY)
     into a datetime.datetime object.
+
+    Parameters
+    ----------
+    yeardoy: str
+        The date in the YYYDOY format
+
+    Returns
+    -------
+    datetime.datetime
+        The corresponding datetime object 
     """
     return datetime.strptime(yeardoy, "%Y%j")
 
