@@ -29,3 +29,4 @@ if "Paths" in settings:
 
 else:
     warnings.warn('sampex is not configured. Run "python3 -m sampex config"')
+    config = {}

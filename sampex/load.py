@@ -7,14 +7,6 @@ from datetime import datetime, date
 import pandas as pd
 import numpy as np
 
-try:
-    from sampex import config
-except ImportError as err:
-    # warnings.warn('sampex is not configured. Run "python3 -m sampex config"')
-    print(err)
-    raise
-
-
 class HILT:
     """
     Load a day of HILT counts and convert the date and time to ``pd.Timestamp`` 
