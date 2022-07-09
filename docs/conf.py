@@ -64,6 +64,8 @@ napoleon_google_docstring = False
 napoleon_use_ivar = True
 napoleon_use_admonition_for_examples = True
 
+copybutton_prompt_text = ">>> "
+
 autodoc_typehints = "none"
 
 def linkcode_resolve(domain, info):
