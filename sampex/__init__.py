@@ -22,11 +22,13 @@ if "Paths" in settings:
 
     config = {"sampex_code_dir": sampex_code_dir, "sampex_data_dir": sampex_data_dir}
 
-    from sampex.load import HILT
-    from sampex.load import PET
-    from sampex.load import LICA
-    from sampex.load import Attitude
-
 else:
     warnings.warn('sampex is not configured. Run "python3 -m sampex config"')
     config = {}
+
+from sampex.load import HILT
+from sampex.load import PET
+from sampex.load import LICA
+from sampex.load import Attitude
+from sampex.load import date2yeardoy
+from sampex.load import yeardoy2date
