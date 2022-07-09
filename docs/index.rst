@@ -18,6 +18,7 @@ Easily load and plot data from the Solar Anomalous and Magnetospheric Particle E
    :caption: Contents:
 
    installation
+   examples
    api
 
 

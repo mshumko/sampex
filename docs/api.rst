@@ -17,13 +17,15 @@ Class Summary
    sampex.load.PET
    sampex.load.LICA
    sampex.load.Attitude
+   sampex.load.date2yeardoy
+   sampex.load.yeardoy2date
 
 
 Download
 ========
 
 .. automodule:: sampex.load
-   :members: HILT, PET, LICA, Attitude
+   :members: HILT, PET, LICA, Attitude, date2yeardoy, yeardoy2date
    :undoc-members:
    :show-inheritance:
 
