@@ -441,21 +441,21 @@ class Attitude:
 
     Example
     -------
-    |from datetime import datetime
-    |
-    |import matplotlib.pyplot as plt
-    |
-    |import sampex
-    |
-    |day = datetime(2007, 1, 20)
-    |
-    |a = sampex.Attitude(day)
-    |a.load()
-    |
-    |fig, ax = plt.subplots()
-    |ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
-    |plt.suptitle(f'SAMPEX Altitude | {day.date()}')
-    |plt.show()
+    | from datetime import datetime
+    | 
+    | import matplotlib.pyplot as plt
+    | 
+    | import sampex
+    | 
+    | day = datetime(2007, 1, 20)
+    | 
+    | a = sampex.Attitude(day)
+    | a.load()
+    | 
+    | fig, ax = plt.subplots()
+    | ax.step(a['time'], a['Altitude'], label='SAMPEX Altitude', where='post')
+    | plt.suptitle(f'SAMPEX Altitude | {day.date()}')
+    | plt.show()
     """
 
     def __init__(self, load_date, verbose=False):
