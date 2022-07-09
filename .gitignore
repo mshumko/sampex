@@ -3,3 +3,4 @@
 *.pyc
 config.ini
 dist/
+docs/_build/

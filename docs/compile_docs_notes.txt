@@ -1,0 +1,5 @@
+To compile the documentation with sphinx, run 
+
+sphinx-apidoc -o . ../sampex
+
+Then run "make clean" and "make html", the html file is located in _build/html/index.html
