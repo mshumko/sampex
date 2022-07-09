@@ -26,33 +26,34 @@ class HILT:
     attribute is a pd.DataFrame containing both the timestamps and 
     counts.
 
+    Parameters
+    ----------
+    load_date: datetime.datetime, pd.Timestamp
+        The date to load the data.
+    verbose: bool
+        If True, will notify you when data is loaded. This is useful when
+        loading a lot of data and the computer seems unresponsive.
 
     Example
     -------
-    |from datetime import datetime
+    | from datetime import datetime
+    | 
+    | import matplotlib.pyplot as plt
+    | 
+    | import sampex
+    | 
+    | day = datetime(2007, 1, 20)
+    | 
+    | h = sampex.HILT(day)
+    | h.load()
     |
-    |import matplotlib.pyplot as plt
-    |
-    |import sampex
-    |
-    |day = datetime(2007, 1, 20)
-    |
-    |h = sampex.HILT(day)
-    |h.load()
-    |
-    |fig, ax = plt.subplots()
-    |ax.step(h['time'], h['counts'], label='HILT', where='post')
-    |plt.suptitle(f'SAMPEX-HILT | {day.date()}')
-    |plt.show()
+    | fig, ax = plt.subplots()
+    | ax.step(h['time'], h['counts'], label='HILT', where='post')
+    | plt.suptitle(f'SAMPEX-HILT | {day.date()}')
+    | plt.show()
     """
 
     def __init__(self, load_date, verbose=False):
-        """
-        Load the HILT data given a date. If this class will look for 
-        a file with the "hhrrYYYYDOY*" filename pattern and open the 
-        found csv file. If the file is zipped, it will first be unzipped. 
-        If you want to extract the file as well, set extract=True.
-        """
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
@@ -75,13 +76,17 @@ class HILT:
 
     def load(self, extract=False):
         """
-        Call this to load and reshape the HILT data into datetime timestamps
-        and counts.
+        Load the HILT data into memory
+
+        Parameters
+        ----------
+        extract: bool
+            Wether or not to extract the HILT file if it is zipped.
 
         Returns
         -------
         pd.DataFrame
-            The HILT data. 
+            The HILT data that is also saved as a ``HILT.data`` attribute.
         """
         # Load the zipped data and extract if a zip file was found.
         if self.file_path.suffix == "zip":
@@ -132,7 +137,7 @@ class HILT:
         zip file reference
         """
         if self.verbose:
-            print(f"Loading SAMPEX HILT data from {self.load_date.date()} from {path.name}")
+            print(f"Loading SAMPEX-HILT data on {self.load_date.date()} from {path.name}")
         self._hilt_csv = pd.read_csv(path, sep=" ")
         return
 
@@ -209,23 +214,31 @@ class PET:
     attribute is a pd.DataFrame containing both the timestamps and 
     counts (called P1_Rate in the original data).
 
+    Parameters
+    ----------
+    load_date: datetime.datetime, pd.Timestamp
+        The date to load the data.
+    verbose: bool
+        If True, will notify you when data is loaded. This is useful when
+        loading a lot of data and the computer seems unresponsive.
+
     Example
     -------
-    |from datetime import datetime
-    |
-    |import matplotlib.pyplot as plt
-    |
-    |import sampex
-    |
-    |day = datetime(2007, 1, 20)
-    |
-    |p = sampex.PET(day)
-    |p.load()
-    |
-    |fig, ax = plt.subplots()
-    |ax.step(p['time'], p['counts'], label='PET', where='post')
-    |plt.suptitle(f'SAMPEX-PET | {day.date()}')
-    |plt.show()
+    | from datetime import datetime
+    | 
+    | import matplotlib.pyplot as plt
+    | 
+    | import sampex
+    | 
+    | day = datetime(2007, 1, 20)
+    | 
+    | p = sampex.PET(day)
+    | p.load()
+    | 
+    | fig, ax = plt.subplots()
+    | ax.step(p['time'], p['counts'], label='PET', where='post')
+    | plt.suptitle(f'SAMPEX-PET | {day.date()}')
+    | plt.show()
     """
 
     def __init__(self, load_date, verbose=False) -> None:
@@ -239,6 +252,11 @@ class PET:
         Loads the PET data into self.data.
         """
         pet_path = self._find_file(self.load_date)
+        if self.verbose:
+            print(
+                f"Loading SAMPEX-PET data on {self.load_date.date()} from"
+                f" {pet_path.name}"
+            )
         self.data = pd.read_csv(pet_path, sep=" ")
         self.data = self.data.rename(columns={"P1_Rate": "counts"})
         self.parse_time()
@@ -300,24 +318,31 @@ class LICA:
     Alternatively, the LICA.data attribute is a pd.DataFrame containing 
     both the timestamps and counts.
 
+    Parameters
+    ----------
+    load_date: datetime.datetime, pd.Timestamp
+        The date to load the data.
+    verbose: bool
+        If True, will notify you when data is loaded. This is useful when
+        loading a lot of data and the computer seems unresponsive.
 
     Example
     -------
-    |from datetime import datetime
-    |
-    |import matplotlib.pyplot as plt
-    |
-    |import sampex
-    |
-    |day = datetime(2007, 1, 20)
-    |
-    |l = sampex.LICA(day)
-    |l.load()
-    |
-    |fig, ax = plt.subplots()
-    |ax.step(l['time'], l['stop'], label='PET', where='post')
-    |plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
-    |plt.show()
+    | from datetime import datetime
+    | 
+    | import matplotlib.pyplot as plt
+    | 
+    | import sampex
+    | 
+    | day = datetime(2007, 1, 20)
+    | 
+    | l = sampex.LICA(day)
+    | l.load()
+    | 
+    | fig, ax = plt.subplots()
+    | ax.step(l['time'], l['stop'], label='PET', where='post')
+    | plt.suptitle(f'SAMPEX-LICA (stop) | {day.date()}')
+    | plt.show()
     """
 
     def __init__(self, load_date, verbose=False) -> None:
@@ -331,6 +356,11 @@ class LICA:
         Loads the LICA data into self.data.
         """
         lica_path = self._find_file()
+        if self.verbose:
+            print(
+                f"Loading SAMPEX-LICA data on {self.load_date.date()} from"
+                f" {lica_path.name}"
+            )
         self.data = pd.read_csv(lica_path, sep=" ")
         self.parse_time()
         return self.data
@@ -394,6 +424,14 @@ class Attitude:
     Attitude.data attribute is a pd.DataFrame containing both the 
     timestamps and attitude variables.
 
+    Parameters
+    ----------
+    load_date: datetime.datetime, pd.Timestamp
+        The date to load the data.
+    verbose: bool
+        If True, will notify you when data is loaded. This is useful when
+        loading a lot of data and the computer seems unresponsive.
+
     Notes
     -----
     Attitude files span multiple days.
@@ -443,7 +481,7 @@ class Attitude:
         """
         if self.verbose:
             print(
-                f"Loading SAMPEX attitude data from {self.load_date.date()} from"
+                f"Loading SAMPEX attitude data on {self.load_date.date()} from"
                 f" {self.attitude_file.name}"
             )
         # A default set of hard-coded list of columns to load

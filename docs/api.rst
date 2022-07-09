@@ -7,8 +7,8 @@ API Reference
     `sampex` handles the time conversions from second-of-day and day-of-year to `pandas.Timestamp` automatically. The time units are `pandas.Timestamp`, but you can lso use times in the `datetime.datetime` format to load the data.
 
 
-Class Summary
-=============
+Summary
+=======
 
 .. autosummary::
    :nosignatures:
@@ -21,11 +21,18 @@ Class Summary
    sampex.load.yeardoy2date
 
 
-Download
-========
+Load
+====
 
 .. automodule:: sampex.load
    :members: HILT, PET, LICA, Attitude, date2yeardoy, yeardoy2date
    :undoc-members:
    :show-inheritance:
 
+Plot
+====
+
+.. automodule:: sampex.plot_sampex
+   :members:
+   :undoc-members:
+   :show-inheritance:

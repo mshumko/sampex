@@ -14,5 +14,6 @@ black==18.5b0 # Newer versions have seg faults or ImportErrors.
 sphinx-copybutton==0.3.1
 furo==2022.6.21
 nbsphinx==0.8.6
+numpydoc==1.4.0
 
 -e . # Install this project
