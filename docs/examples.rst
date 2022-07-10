@@ -17,8 +17,8 @@ Command line to plot the SAMPEX data
     plot_sampex 2007 1 20 --yscale log
 
 
-Load and plot the HILT data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Load and plot the HILT state 4 data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: python
 
@@ -37,6 +37,41 @@ Load and plot the HILT data
     >>> ax.step(h['time'], h['counts'], label='HILT', where='post')
     >>> plt.suptitle(f'SAMPEX-HILT | {day.date()}')
     >>> plt.show()
+
+Load and plot the HILT state 1 data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This example shows the microburst isotropy that was reported by Blake et al. 1996 "New high temporal and spatial resolution measurements by SAMPEX of the precipitation of relativistic electrons"
+
+.. figure:: ./_static/19921004_sampex_isotropy.png
+
+    :alt: A plot showing the microburst isotropy observed by SAMPEX-HILT.
+    :width: 75%
+
+.. code:: python
+
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(1992, 10, 4)
+
+    h = sampex.HILT(day)
+    h.load()
+
+    fig, ax = plt.subplots()
+    colors = ['k', 'r', 'c', 'g']
+    for i, color in enumerate(colors, start=1):
+        ax.step(h["time"], h[f"SSD{i}"], label=f"SSD{i}", where="post", c=color)
+    ax.legend()
+    ax.set_yscale('log')
+    ax.set_xlim(
+        datetime(1992, 10, 4, 3, 58, 25), 
+        datetime(1992, 10, 4, 3, 58, 40))
+    ax.set_ylim(500, None)
+    plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
+    plt.show()
 
 Load and plot the PET data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

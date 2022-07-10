@@ -7,6 +7,8 @@ from datetime import datetime, date
 import pandas as pd
 import numpy as np
 
+import sampex
+
 class HILT:
     """
     Load a day of HILT counts and convert the date and time to ``pd.Timestamp`` 
@@ -45,7 +47,7 @@ class HILT:
     | plt.show()
     """
 
-    def __init__(self, load_date, verbose=False):
+    def __init__(self, load_date, verbose=False, state=None):
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
@@ -53,17 +55,20 @@ class HILT:
         # Get the filename and search for it. If multiple or no
         # unique files are found this will raise an assertion error.
         file_name_glob = f"hhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(config["sampex_data_dir"], "hilt").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "hilt").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) in [1, 2], (
             f"{len(matched_files)} matched HILT files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(config["sampex_data_dir"], "hilt")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "hilt")}'
             f"\nmatched files: {matched_files}"
         )
         self.file_path = matched_files[0]
-        self.state = self._get_state()
+        if state is None:
+            self.state = self._get_state()
+        else:
+            self.state = state
         return
 
     def load(self, extract=False):
@@ -88,11 +93,15 @@ class HILT:
 
         # Parse the seconds of day time column to datetime objects
         self.parse_time()
-
-        if (self.state == 4) or (self.state == 2):
+        if self.state == 1:
+            self.data = self._hilt_csv.rename(columns={
+                "Rate1":'SSD1',  "Rate2":'SSD2',  "Rate3":'SSD3',  
+                "Rate4":'SSD4',  "Rate5":'PCRE',  "Rate6":'IK'
+            })
+        elif (self.state == 4) or (self.state == 2):
             self.data = self.reshape_20ms_state()
         else:
-            raise NotImplementedError("State 1 and 3 are not implemented yet.")
+            raise NotImplementedError("State 3 is not implemented yet.")
         return self.data
 
     def __getitem__(self, _slice):
@@ -102,10 +111,14 @@ class HILT:
         if isinstance(_slice, str):
             if "time" in _slice.lower():
                 return self.data.index
-            if "count" in _slice.lower():
-                return self.data["counts"].to_numpy()
+            else:
+                try:
+                    return self.data[_slice].to_numpy()
+                except KeyError as err:
+                    raise IndexError(f'{_slice} slice is unrecognized. Try one'
+                        f' of these: {self.data.columns.to_numpy()}')
         else:
-            raise IndexError('Slices other than "time" or "counts" is not allowed.')
+            raise ValueError(f'Slice must be str, not {type(_slice)}')
 
     def read_zip(self, zip_path, extract=False):
         """
@@ -139,8 +152,8 @@ class HILT:
         """
         # Check if the seconds are monotonically increasing.
         np_time = self._hilt_csv["Time"].to_numpy()
-        if np.any(np_time[1:] < np_time[:-1]):
-            raise ValueError(f"The SAMPEX HILT data is not in order for {self.load_date_str}.")
+        # if np.any(np_time[1:] < np_time[:-1]):
+        #     raise ValueError(f"The SAMPEX HILT data is not in order for {self.load_date_str}.")
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self._hilt_csv["Time"], unit="s")
         self._hilt_csv["Time"] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
@@ -283,16 +296,16 @@ class PET:
 
     def _find_file(self, day):
         """
-        Recursively searches the config['sampex_data_dir']/pet/ directory for the file.
+        Recursively searches the sampex.config['sampex_data_dir']/pet/ directory for the file.
         """
         file_name_glob = f"phrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(config["sampex_data_dir"], "pet").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "pet").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) == 1, (
             f"{len(matched_files)} matched PET files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(config["sampex_data_dir"], "pet")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "pet")}'
             f"\nmatched files: {matched_files}"
         )
         return matched_files[0]
@@ -376,16 +389,16 @@ class LICA:
 
     def _find_file(self):
         """
-        Recursively searches the config['sampex_data_dir']/pet/ directory for the file.
+        Recursively searches the sampex.config['sampex_data_dir']/pet/ directory for the file.
         """
         file_name_glob = f"lhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(config["sampex_data_dir"], "lica").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "lica").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) == 1, (
             f"{len(matched_files)} matched LICA files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(config["sampex_data_dir"], "lica")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "lica")}'
             f"\nmatched files: {matched_files}"
         )
         return matched_files[0]
@@ -529,7 +542,7 @@ class Attitude:
         the DOY from self.load_date
         """
         attitude_files = sorted(
-            list(pathlib.Path(config["sampex_data_dir"], "attitude").rglob("PSSet_6sec_*_*.txt"))
+            list(pathlib.Path(sampex.config["sampex_data_dir"], "attitude").rglob("PSSet_6sec_*_*.txt"))
         )
         start_end_dates = [re.findall(r"\d+", str(f.name))[1:] for f in attitude_files]
 
@@ -541,7 +554,7 @@ class Attitude:
                 self.attitude_file = f
         if self.attitude_file is None:
             raise ValueError(
-                f'A matched file not found in {pathlib.Path(config["sampex_data_dir"], "attitude")} '
+                f'A matched file not found in {pathlib.Path(sampex.config["sampex_data_dir"], "attitude")} '
                 f"for YEARDOY={self.load_date_str}"
             )
         return self.attitude_file
@@ -628,12 +641,20 @@ if __name__ == "__main__":
 
     import sampex
 
-    day = datetime(2007, 1, 20)
+    day = datetime(1992, 10, 4)
 
     h = sampex.HILT(day)
     h.load()
 
     fig, ax = plt.subplots()
-    ax.step(h["time"], h["counts"], label="HILT", where="post")
-    plt.suptitle(f"SAMPEX-HILT | {day.date()}")
+    colors = ['k', 'r', 'c', 'g']
+    for i, color in enumerate(colors, start=1):
+        ax.step(h["time"], h[f"SSD{i}"], label=f"SSD{i}", where="post", c=color)
+    ax.legend()
+    ax.set_yscale('log')
+    ax.set_xlim(
+        datetime(1992, 10, 4, 3, 58, 25), 
+        datetime(1992, 10, 4, 3, 58, 40))
+    ax.set_ylim(500, None)
+    plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
     plt.show()
