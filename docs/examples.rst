@@ -17,35 +17,12 @@ Command line to plot the SAMPEX data
     plot_sampex 2007 1 20 --yscale log
 
 
-Load and plot the HILT state 4 data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: python
-
-    >>> from datetime import datetime
- 
-    >>> import matplotlib.pyplot as plt
- 
-    >>> import sampex
- 
-    >>> day = datetime(2007, 1, 20)
- 
-    >>> h = sampex.HILT(day)
-    >>> h.load()
- 
-    >>> fig, ax = plt.subplots()
-    >>> ax.step(h['time'], h['counts'], label='HILT', where='post')
-    >>> plt.suptitle(f'SAMPEX-HILT | {day.date()}')
-    >>> plt.show()
-
 Load and plot the HILT state 1 data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This example shows the microburst isotropy that was reported by Blake et al. 1996 "New high temporal and spatial resolution measurements by SAMPEX of the precipitation of relativistic electrons"
+This example shows the microburst isotropy that was reported by Blake et al. 1996 "New high temporal and spatial resolution measurements by SAMPEX of the precipitation of relativistic electrons".
 
 .. figure:: ./_static/19921004_sampex_isotropy.png
-
     :alt: A plot showing the microburst isotropy observed by SAMPEX-HILT.
-    :width: 75%
 
 .. code:: python
 
@@ -68,10 +45,39 @@ This example shows the microburst isotropy that was reported by Blake et al. 199
     ax.set_yscale('log')
     ax.set_xlim(
         datetime(1992, 10, 4, 3, 58, 25), 
-        datetime(1992, 10, 4, 3, 58, 40))
+        datetime(1992, 10, 4, 3, 58, 40)
+        )
     ax.set_ylim(500, None)
     plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
     plt.show()
+
+
+Load and plot the HILT state 4 data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    >>> from datetime import datetime
+ 
+    >>> import matplotlib.pyplot as plt
+ 
+    >>> import sampex
+ 
+    >>> day = datetime(2007, 1, 20)
+ 
+    >>> h = sampex.HILT(day)
+    >>> h.load()
+ 
+    >>> fig, ax = plt.subplots()
+    >>> ax.step(h['time'], h['counts'], label='HILT', where='post')
+    >>> ax.set_xlim(
+            datetime(2007, 1, 20, 10, 42, 45),
+            datetime(2007, 1, 20, 10, 45, 0)
+        )
+    >>> ax.set_yscale('log')
+    >>> plt.suptitle(f'SAMPEX-HILT | {day.date()}')
+    >>> plt.show()
+
 
 Load and plot the PET data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
