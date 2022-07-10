@@ -18,14 +18,16 @@ class HILT:
     file into memory.
 
     Once loaded, you can access the timestamps with HILT['time'] and
-    counts array with HILT[column] where column depends on the HILT state 
-    (see description below). Alternatively, the HILT.data attribute is a 
-    pd.DataFrame containing both the timestamps and counts from all channels.
+    counts array with HILT[`column`] where `column` depends on the HILT state
 
-    The following are valid column names for the four states
-    - State 1: 'SSD1', 'SSD2', 'SSD3', 'SSD4', 'PCRE', 'IK',
-    - States 2 and 4: 'counts' (summed from the SSD rows),
-    - State 3: not implemented yet.
+    **State 1**: 'SSD1', 'SSD2', 'SSD3', 'SSD4', 'PCRE', 'IK',
+
+    **States 2 and 4**: 'counts' (sum of all SSD rows),
+
+    **State 3**: not implemented yet.
+
+    Alternatively, the HILT.data attribute is a pd.DataFrame containing both 
+    the timestamps and counts from all channels.
 
     Parameters
     ----------

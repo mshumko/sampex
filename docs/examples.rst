@@ -54,29 +54,32 @@ This example shows the microburst isotropy that was reported by Blake et al. 199
 
 Load and plot the HILT state 4 data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. figure:: ./_static/19990817_sampex_microbursts.png
+    :alt: A plot showing the microburst isotropy observed by SAMPEX-HILT.
 
 .. code:: python
 
-    >>> from datetime import datetime
- 
-    >>> import matplotlib.pyplot as plt
- 
-    >>> import sampex
- 
-    >>> day = datetime(1998, 8, 17)
- 
-    >>> h = sampex.HILT(day)
-    >>> h.load()
- 
-    >>> fig, ax = plt.subplots()
-    >>> ax.step(h['time'], h['counts'], label='HILT', where='post')
-    >>> ax.set_xlim(
-            datetime(1998, 8, 17, 20, 57, 0),
-            datetime(1998, 8, 17, 20, 57, 58)
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+
+    import sampex
+
+    day = datetime(1999, 8, 17)
+
+    h = sampex.HILT(day)
+    h.load()
+
+    fig, ax = plt.subplots()
+    ax.step(h['time'], h['counts'], label='HILT', where='post')
+    ax.set_xlim(
+        datetime(1999, 8, 17, 20, 57, 0),
+        datetime(1999, 8, 17, 20, 57, 30)
         )
-    >>> ax.set_yscale('log')
-    >>> plt.suptitle(f'SAMPEX-HILT | {day.date()}')
-    >>> plt.show()
+    ax.set_ylim(70, 2000)
+    ax.set_yscale('log')
+    plt.suptitle(f'SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})')
+    plt.show()
 
 
 Load and plot the PET data
@@ -143,7 +146,7 @@ Load and plot the Attitude data
 
 Merge the HILT and Attitude data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Most often you'll need to put the instrument data in context. Here the context is the attitude data. This short example shows how you can merge the HILT and Attutude data together.
+Often you'll need to put the satellite counts data in context. Here the attitude data provides the magnetospheric and geographic context. This short example shows how you can easily merge the HILT and Attitude data.
 
 .. note::
     This example does not interpolate the attitude data, it only finds the nearest attitude timestamps within 3 seconds (the attitude data is reported every 6 seconds). This works well for many applications.
