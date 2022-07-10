@@ -63,7 +63,7 @@ Load and plot the HILT state 4 data
  
     >>> import sampex
  
-    >>> day = datetime(2007, 1, 20)
+    >>> day = datetime(1998, 8, 17)
  
     >>> h = sampex.HILT(day)
     >>> h.load()
@@ -71,8 +71,8 @@ Load and plot the HILT state 4 data
     >>> fig, ax = plt.subplots()
     >>> ax.step(h['time'], h['counts'], label='HILT', where='post')
     >>> ax.set_xlim(
-            datetime(2007, 1, 20, 10, 42, 45),
-            datetime(2007, 1, 20, 10, 45, 0)
+            datetime(1998, 8, 17, 20, 57, 0),
+            datetime(1998, 8, 17, 20, 57, 58)
         )
     >>> ax.set_yscale('log')
     >>> plt.suptitle(f'SAMPEX-HILT | {day.date()}')

@@ -1,8 +1,10 @@
 # This program loads the HILT data and parses it into a nice format
+from typing import Union
 import pathlib
 import zipfile
 import re
 from datetime import datetime, date
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -16,9 +18,14 @@ class HILT:
     file into memory.
 
     Once loaded, you can access the timestamps with HILT['time'] and
-    counts array with HILT['counts']. Alternatively, the HILT.data
-    attribute is a pd.DataFrame containing both the timestamps and 
-    counts.
+    counts array with HILT[column] where column depends on the HILT state 
+    (see description below). Alternatively, the HILT.data attribute is a 
+    pd.DataFrame containing both the timestamps and counts from all channels.
+
+    The following are valid column names for the four states
+    - State 1: 'SSD1', 'SSD2', 'SSD3', 'SSD4', 'PCRE', 'IK',
+    - States 2 and 4: 'counts' (summed from the SSD rows),
+    - State 3: not implemented yet.
 
     Parameters
     ----------
@@ -27,6 +34,10 @@ class HILT:
     verbose: bool
         If True, will notify you when data is loaded. This is useful when
         loading a lot of data and the computer seems unresponsive.
+    state: int
+        Override the default state calculation
+        (https://izw1.caltech.edu/sampex/DataCenter/docs/HILThires.html)
+
 
     Example
     -------
@@ -46,8 +57,7 @@ class HILT:
     | plt.suptitle(f'SAMPEX-HILT | {day.date()}')
     | plt.show()
     """
-
-    def __init__(self, load_date, verbose=False, state=None):
+    def __init__(self, load_date:Union[datetime, date], verbose: bool=False, state: int=None):
         self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
@@ -152,8 +162,8 @@ class HILT:
         """
         # Check if the seconds are monotonically increasing.
         np_time = self._hilt_csv["Time"].to_numpy()
-        # if np.any(np_time[1:] < np_time[:-1]):
-        #     raise ValueError(f"The SAMPEX HILT data is not in order for {self.load_date_str}.")
+        if np.any(np_time[1:] < np_time[:-1]):
+            warnings.warn(f"The SAMPEX HILT data is not in order for {self.load_date_str}.")
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self._hilt_csv["Time"], unit="s")
         self._hilt_csv["Time"] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
