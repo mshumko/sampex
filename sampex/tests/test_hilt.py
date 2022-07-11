@@ -24,7 +24,6 @@ def test_hilt_state1():
     return
 
 def test_hilt_state4():
-
     day = datetime(1999, 8, 17)
 
     h = sampex.HILT(day)
