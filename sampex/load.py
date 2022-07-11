@@ -127,10 +127,10 @@ class HILT:
                 try:
                     return self.data[_slice].to_numpy()
                 except KeyError as err:
-                    raise IndexError(f'{_slice} slice is unrecognized. Try one'
+                    raise KeyError(f'{_slice} slice is unrecognized. Try one'
                         f' of these: {self.data.columns.to_numpy()}')
         else:
-            raise ValueError(f'Slice must be str, not {type(_slice)}')
+            raise KeyError(f'Slice must be str, not {type(_slice)}')
 
     def read_zip(self, zip_path, extract=False):
         """
@@ -301,10 +301,13 @@ class PET:
         if isinstance(_slice, str):
             if "time" in _slice.lower():
                 return self.data.index
-            if "count" in _slice.lower():
+            elif "count" in _slice.lower():
                 return self.data["counts"].to_numpy()
+            else:
+                raise KeyError(f'{_slice} slice is unrecognized. Try one'
+                        f' of these: {self.data.columns.to_numpy()}')
         else:
-            raise IndexError('Slices other than "time" or "counts" is not allowed.')
+            raise KeyError('Slices other than "time" or "counts" is not allowed.')
 
     def _find_file(self, day):
         """
@@ -426,8 +429,10 @@ class LICA:
                 for column in self.data.columns:
                     if _slice.lower() in column.lower():
                         return self.data[column].to_numpy()
+                raise KeyError(f'{_slice} slice is unrecognized. Try one'
+                    f' of these: {self.data.columns.to_numpy()}') 
         else:
-            raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
+            raise KeyError(f'Slices other than "time" or {self.data.columns} are unsupported')
 
 
 class Attitude:
@@ -543,10 +548,12 @@ class Attitude:
                     if _slice.lower() in column.lower():
                         return self.data[column].to_numpy()
                 raise KeyError(
-                    f"{_slice} is an invalid column: Valid columns are: {self.data.columns} "
+                    f"{_slice} is an invalid column: Valid columns are: "
+                    f"{self.data.columns.to_numpy()} "
                 )
         else:
-            raise IndexError(f'Slices other than "time" or {self.data.columns} are unsupported')
+            raise KeyError(f"Slices other than 'time' or "
+                f"{self.data.columns.to_numpy()} are unsupported")
 
     def _find_attitude_file(self):
         """ 

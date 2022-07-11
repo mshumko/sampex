@@ -34,7 +34,7 @@ def test_hilt_state4():
     assert h['time'][0] == np.datetime64('1999-08-17T00:00:02.000000000')
     assert h['time'][-1] == np.datetime64('1999-08-18T00:00:02.980000000')
 
-    with pytest.raises(IndexError):
+    with pytest.raises(KeyError):
         h['SSD']
         h['SSD1']
     return
