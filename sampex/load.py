@@ -286,7 +286,7 @@ class PET:
         # Check if the seconds are monotonically increasing.
         np_time = self.data["Time"].to_numpy()
         if np.any(np_time[1:] < np_time[:-1]):
-            raise ValueError(f"The SAMPEX PET data is not in order for {self.load_date_str}.")
+            warnings.warn(f"The SAMPEX PET data is not in order for {self.load_date_str}.")
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self.data["Time"], unit="s")
         self.data["Time"] = pd.Timestamp(self.load_date.date()) + day_seconds_obj
@@ -390,7 +390,7 @@ class LICA:
         # Check if the seconds are monotonically increasing.
         np_time = self.data["Time"].to_numpy()
         if np.any(np_time[1:] < np_time[:-1]):
-            raise ValueError(f"The SAMPEX LICA data is not in order for {self.load_date_str}.")
+            warnings.warn(f"The SAMPEX LICA data is not in order for {self.load_date_str}.")
         # Convert seconds of day to a datetime object.
         day_seconds_obj = pd.to_timedelta(self.data["Time"], unit="s")
         self.data["Time"] = pd.Timestamp(self.load_date.date()) + day_seconds_obj

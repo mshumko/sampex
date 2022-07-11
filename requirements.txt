@@ -8,6 +8,7 @@ pandas
 # For development
 bump2version
 black==18.5b0 # Newer versions have seg faults or ImportErrors.
+pytest
 
 # For docs
 # Need to install Sphinx on your OS. See https://www.sphinx-doc.org/en/master/usage/installation.html
