@@ -67,13 +67,13 @@ class HILT:
         # Get the filename and search for it. If multiple or no
         # unique files are found this will raise an assertion error.
         file_name_glob = f"hhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "hilt").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["data_dir"], "hilt").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) in [1, 2], (
             f"{len(matched_files)} matched HILT files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "hilt")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "hilt")}'
             f"\nmatched files: {matched_files}"
         )
         self.file_path = matched_files[0]
@@ -311,16 +311,16 @@ class PET:
 
     def _find_file(self, day):
         """
-        Recursively searches the sampex.config['sampex_data_dir']/pet/ directory for the file.
+        Recursively searches the sampex.config['data_dir']/pet/ directory for the file.
         """
         file_name_glob = f"phrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "pet").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["data_dir"], "pet").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) == 1, (
             f"{len(matched_files)} matched PET files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "pet")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "pet")}'
             f"\nmatched files: {matched_files}"
         )
         return matched_files[0]
@@ -404,16 +404,16 @@ class LICA:
 
     def _find_file(self):
         """
-        Recursively searches the sampex.config['sampex_data_dir']/pet/ directory for the file.
+        Recursively searches the sampex.config['data_dir']/pet/ directory for the file.
         """
         file_name_glob = f"lhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["sampex_data_dir"], "lica").rglob(file_name_glob))
+        matched_files = list(pathlib.Path(sampex.config["data_dir"], "lica").rglob(file_name_glob))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
         assert len(matched_files) == 1, (
             f"{len(matched_files)} matched LICA files found."
             f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["sampex_data_dir"], "lica")}'
+            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "lica")}'
             f"\nmatched files: {matched_files}"
         )
         return matched_files[0]
@@ -561,7 +561,7 @@ class Attitude:
         the DOY from self.load_date
         """
         attitude_files = sorted(
-            list(pathlib.Path(sampex.config["sampex_data_dir"], "attitude").rglob("PSSet_6sec_*_*.txt"))
+            list(pathlib.Path(sampex.config["data_dir"], "attitude").rglob("PSSet_6sec_*_*.txt"))
         )
         start_end_dates = [re.findall(r"\d+", str(f.name))[1:] for f in attitude_files]
 
@@ -573,7 +573,7 @@ class Attitude:
                 self.attitude_file = f
         if self.attitude_file is None:
             raise ValueError(
-                f'A matched file not found in {pathlib.Path(sampex.config["sampex_data_dir"], "attitude")} '
+                f'A matched file not found in {pathlib.Path(sampex.config["data_dir"], "attitude")} '
                 f"for YEARDOY={self.load_date_str}"
             )
         return self.attitude_file
