@@ -12,9 +12,10 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
 
 import sampex
+
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
@@ -66,6 +67,7 @@ napoleon_use_admonition_for_examples = True
 copybutton_prompt_text = ">>> "
 
 autodoc_typehints = "none"
+
 
 def linkcode_resolve(domain, info):
     if domain != 'py':
