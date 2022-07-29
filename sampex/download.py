@@ -86,14 +86,14 @@ class Downloader:
         if download_dir is not None:
             self.download_dir = download_dir
 
-        download_dir = pathlib.Path(download_dir)
-        download_dir.mkdir(parents=True, exist_ok=True)
-        file_name = urllib.parse.urlsplit(self.url)[-1]
-        download_path = download_dir / file_name
+        self.download_dir = pathlib.Path(self.download_dir)
+        self.download_dir.mkdir(parents=True, exist_ok=True)
+        file_name = pathlib.Path(self.url).name
+        download_path = self.download_dir / file_name
 
         if (download_path.exists()) and (not overwrite):
             print(f'{file_name} is already saved in {download_path}.')
-            return
+            return download_path
 
         if stream:
             r = requests.get(self.url, stream=True)
@@ -115,7 +115,10 @@ class Downloader:
             r = requests.get(self.url)
             with open(download_path, 'wb') as f:
                 f.write(r.content)
-        return self.save_path
+        return download_path
+
+    def name(self):
+        return pathlib.Path(self.url).name
 
     def _search_hrefs(self, url: str, match: str='*') -> List[str]:
         """
@@ -165,8 +168,9 @@ class Downloader:
 
 if __name__ == '__main__':
     d = Downloader(
-        'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/'
+        'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/',
+        download_dir='/home/mike/Desktop/test'
         )
     # d.find_file(['2014', '05', '05', 'gill*', 'ut05', '20140505_0505_gill*.pgm.gz'])
     paths = d.ls(match='*.txt*')
-    d.download() 
+    paths[0].download() 
