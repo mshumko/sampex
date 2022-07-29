@@ -8,7 +8,7 @@ import requests
 
 
 class Downloader:
-    def __init__(self, url:str) -> None:
+    def __init__(self, url:str, download_dir=None) -> None:
         """
         Handles traversing the directory structure on a server and download files.
 
@@ -16,6 +16,8 @@ class Downloader:
         ----------
         url: str
             The dataset URL.
+        download_dir: str or pathlib.Path
+            The download directory.
 
         Example
         -------
@@ -28,6 +30,7 @@ class Downloader:
         d.download()
         """
         self.url = url
+        self.download_dir=download_dir
         return
 
     def ls(self, match='*'):
@@ -56,53 +59,63 @@ class Downloader:
         downloaders = [None]*len(matched_hrefs)
         for i, matched_href in enumerate(matched_hrefs):
             new_url = urllib.parse.urljoin(self.url, matched_href, allow_fragments=True)
-            downloaders[i] = cls(new_url)
+            downloaders[i] = cls(new_url, download_dir=self.download_dir)
         return downloaders
 
-    # def download(self, save_dir, overwrite=False) -> None:
-    #     """
-    #     Downloads (streams) a file from self.url to the save_dir directory. I decided
-    #     to use streaming so that a large file wont overwhelm the user's RAM.
-    #     Parameters
-    #     ----------
-    #     save_dir: str or pathlib.Path
-    #         The parent directory where to save the data to.
-    #     overwrite: bool
-    #         Will download overwrite an existing file. 
-    #     Returns
-    #     -------
-    #     list
-    #         A list of local paths where the data was saved to. 
-    #     """
-    #     save_dir = pathlib.Path(save_dir)
-    #     save_dir.mkdir(parents=True, exist_ok=True)
-    #     self.save_path = []
+    def download(self, download_dir=None, overwrite: bool=False, stream: bool=False) -> None:
+        """
+        Downloads file from self.url to the download_dir directory.
 
-    #     for url in self.url:
-    #         save_name = url.split('/')[-1]
-    #         _save_path = save_dir / save_name
-    #         self.save_path.append(_save_path)
+        Parameters
+        ----------
+        download_dir: str or pathlib.Path
+            The parent directory where to save the data to. Set it either
+            here or when initializing the class. This 
+        overwrite: bool
+            Will overwrite an existing file. 
+        stream: bool
 
-    #         if (_save_path.exists()) and (not overwrite):
-    #             continue
+        Returns
+        -------
+        pathlib.Path
+            The full path to the file. 
+        """
+        if download_dir is None and self.download_dir is None:
+            raise ValueError(f'download_dir kwarg needs to be set either '
+                             f'in Downloader() or Downloader.download.')
+        if download_dir is not None:
+            self.download_dir = download_dir
 
-    #         r = requests.get(url, stream=True)
-    #         file_size = int(r.headers.get('content-length'))
-    #         downloaded_bites = 0
+        download_dir = pathlib.Path(download_dir)
+        download_dir.mkdir(parents=True, exist_ok=True)
+        file_name = urllib.parse.urlsplit(self.url)[-1]
+        download_path = download_dir / file_name
 
-    #         megabyte = 1024 * 1024
+        if (download_path.exists()) and (not overwrite):
+            print(f'{file_name} is already saved in {download_path}.')
+            return
 
-    #         with open(_save_path, 'wb') as f:
-    #             for data in r.iter_content(chunk_size=5*megabyte):
-    #                 f.write(data)
-    #                 # Update the downloaded % in the terminal.
-    #                 downloaded_bites += len(data)
-    #                 download_percent = round(100 * downloaded_bites / file_size)
-    #                 download_str = "#" * (download_percent // 5)
-    #                 print(f'Downloading {save_name}: |{download_str:<20}| {download_percent}%', end='\r')
-    #         print()  # Add a newline
-    #     return self.save_path
+        if stream:
+            r = requests.get(self.url, stream=True)
+            file_size = int(r.headers.get('content-length'))
+            downloaded_bites = 0
 
+            megabyte = 1024 * 1024
+
+            with open(download_path, 'wb') as f:
+                for data in r.iter_content(chunk_size=5*megabyte):
+                    f.write(data)
+                    # Update the downloaded % in the terminal.
+                    downloaded_bites += len(data)
+                    download_percent = round(100 * downloaded_bites / file_size)
+                    download_str = "#" * (download_percent // 5)
+                    print(f'Downloading {file_name}: |{download_str:<20}| {download_percent}%', end='\r')
+            print()  # Add a newline
+        else:
+            r = requests.get(self.url)
+            with open(download_path, 'wb') as f:
+                f.write(r.content)
+        return self.save_path
 
     def _search_hrefs(self, url: str, match: str='*') -> List[str]:
         """
@@ -143,10 +156,12 @@ class Downloader:
         return matched_hrefs
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__qualname__}(' + self.url + ')'
+        params = f'{self.url}, download_dir={self.download_dir},'
+        return f'{self.__class__.__qualname__}(' + params + ')'
     
     def __str__(self) -> str:
-        return f'{self.__class__.__qualname__} with url={self.url}'
+        return (f'{self.__class__.__qualname__} with url={self.url} and '
+               f'download_dir={self.download_dir}')
 
 if __name__ == '__main__':
     d = Downloader(
