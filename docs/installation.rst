@@ -10,8 +10,6 @@ Installing sampex is as simple as:
 
    python3 -m pip install sampex
 
-I've kept the library dependencies at a minimum: only numpy, pandas, and matplotlib.
-
 Configuration
 -------------
 You can configure this package so it knows the top-level directory to search for (or save) the data to.
