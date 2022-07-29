@@ -166,12 +166,3 @@ class Downloader:
     def __str__(self) -> str:
         return (f'{self.__class__.__qualname__} with url={self.url} and '
                f'download_dir={self.download_dir}')
-
-if __name__ == '__main__':
-    d = Downloader(
-        'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/',
-        download_dir='/home/mike/Desktop/test'
-        )
-    # d.find_file(['2014', '05', '05', 'gill*', 'ut05', '20140505_0505_gill*.pgm.gz'])
-    paths = d.ls(match='*.txt*')
-    paths[0].download(stream=True) 
