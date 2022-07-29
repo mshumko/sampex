@@ -92,7 +92,6 @@ class Downloader:
         download_path = self.download_dir / file_name
 
         if (download_path.exists()) and (not overwrite):
-            print(f'{file_name} is already saved in {download_path}.')
             return download_path
 
         if stream:

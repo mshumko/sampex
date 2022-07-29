@@ -3,6 +3,7 @@ from typing import Union
 import pathlib
 import zipfile
 import re
+import dateutil.parser
 from datetime import datetime, date
 import warnings
 
@@ -60,27 +61,38 @@ class HILT:
     | plt.show()
     """
     def __init__(self, load_date:Union[datetime, date], verbose: bool=False, state: int=None):
-        self.load_date = load_date
+        if isinstance(load_date, str):
+            self.load_date = dateutil.parser.parse(load_date)
+        else:
+            self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
 
-        # Get the filename and search for it. If multiple or no
-        # unique files are found this will raise an assertion error.
-        file_name_glob = f"hhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["data_dir"], "hilt").rglob(file_name_glob))
-        # 1 if there is just one file, and 2 if there is a file.txt and
-        # file.txt.zip files.
-        assert len(matched_files) in [1, 2], (
-            f"{len(matched_files)} matched HILT files found."
-            f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "hilt")}'
-            f"\nmatched files: {matched_files}"
-        )
-        self.file_path = matched_files[0]
+        # Find the file
         if state is None:
             self.state = self._get_state()
         else:
-            self.state = state
+            self.state = state 
+        file_match = f"hhrr{self.load_date_str}*"
+        local_files = list(pathlib.Path(sampex.config["data_dir"]).rglob(file_match))
+
+        # 1 if there is just one file, and 2 if there is a file.txt and
+        # file.txt.zip files.
+        if len(local_files) in [1, 2]:
+            self.file_path = local_files[0]
+        elif len(local_files) == 0:
+            # File not found locally. Check online.
+            downloader = sampex.Downloader(
+                f'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State{self.state}/',
+                download_dir=sampex.config['data_dir'] / 'HILT' / f'State{self.state}'
+                )
+            matched_downloaders = downloader.ls(match=file_match)
+            self.file_path = matched_downloaders[0].download() 
+        else:
+            raise FileNotFoundError(
+                f'{len(local_files)} HILT files found locally and online that match {file_match}.'
+                )
+        
         return
 
     def load(self, extract=False):

@@ -15,7 +15,7 @@ if "Paths" in settings:
     except KeyError as err:
         pass
 
-    config = {"data_dir": data_dir}
+    config = {"data_dir": pathlib.Path(data_dir)}
 else:
     config = {"data_dir": pathlib.Path.home() / 'sampex-data'}
 
