@@ -1,3 +1,4 @@
+from __future__ import annotations  # to support the -> List[Downloader] return type
 from typing import List
 import pathlib
 import urllib
@@ -8,33 +9,40 @@ import requests
 
 
 class Downloader:
+    """
+    Traverses and lists the directory structure on a server and download files.
+
+    Parameters
+    ----------
+    url: str
+        The dataset URL.
+    download_dir: str or pathlib.Path
+        The download directory. Must either specify here, or when you call 
+        Downloader.download().
+
+    Example
+    -------
+    | # List all of the SAMPEX-HILT State4 files and download the first one.
+    |
+    | import sampex
+    |
+    | d = sampex.Downloader(
+    |     'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/',
+    |     download_dir=sampex.config['data_dir']
+    | )
+    | paths = d.ls(match='*.txt*')
+    | print(f"The downloaded files are: {paths}")
+    | 
+    | print(f"The first file's name is: {paths[0].name} at url {paths[0].url}")
+    | path = paths[0].download(stream=False)
+    | print(f'The file was downloaded to {path}')
+    """
     def __init__(self, url:str, download_dir=None) -> None:
-        """
-        Handles traversing the directory structure on a server and download files.
-
-        Parameters
-        ----------
-        url: str
-            The dataset URL.
-        download_dir: str or pathlib.Path
-            The download directory.
-
-        Example
-        -------
-        | import sampex
-        |
-        | d = sampex.Downloader(
-        |     'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/',
-        |     download_dir=tmp_dir.name
-        | )
-        | paths = d.ls(match='*.txt*')
-        | path = paths[0].download(stream=False)
-        """
         self.url = url
         self.download_dir=download_dir
         return
 
-    def ls(self, match='*'):
+    def ls(self, match: str='*') -> List[Downloader]:
         """
         List files and folders in self.url. 
 
@@ -63,7 +71,7 @@ class Downloader:
             downloaders[i] = cls(new_url, download_dir=self.download_dir)
         return downloaders
 
-    def download(self, download_dir=None, overwrite: bool=False, stream: bool=False) -> None:
+    def download(self, download_dir=None, overwrite: bool=False, stream: bool=False) -> pathlib.Path:
         """
         Downloads file from self.url to the download_dir directory.
 
@@ -75,6 +83,8 @@ class Downloader:
         overwrite: bool
             Will overwrite an existing file. 
         stream: bool
+            Download the data in one chunk if False, or break it up and download it 
+            in 5 Mb chunks if True.
 
         Returns
         -------
@@ -119,6 +129,9 @@ class Downloader:
         return download_path
 
     def name(self):
+        """
+        Get the url filename
+        """
         return pathlib.Path(self.url).name
 
     def _search_hrefs(self, url: str, match: str='*') -> List[str]:

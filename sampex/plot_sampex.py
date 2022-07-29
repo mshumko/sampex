@@ -9,6 +9,22 @@ import numpy as np
 from sampex import HILT, PET, LICA, Attitude
 
 def main():
+    """
+    A simple command-line interface to plot the SAMPEX data. 
+
+    Parameters
+    ----------
+    year, month, day: int
+        Define the date
+    --yscale: str
+        The y-scale. Can be "linear" or "log"
+    --instrument: str
+        The instrument to plot. Default is "all" but you can plot "HILT", "PET", or "LICA.
+
+    Example
+    -------
+    | plot_sampex 2007 1 20 --yscale log
+    """
     parser = argparse.ArgumentParser(description=("This script plots the " "SAMPEX data"))
     parser.add_argument(
         "date", nargs=3, type=int, help=("The date to plot the data. Must be in the YYYY MM DD format.")

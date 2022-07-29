@@ -19,6 +19,7 @@ Summary
    sampex.load.Attitude
    sampex.load.date2yeardoy
    sampex.load.yeardoy2date
+   sampex.download.Downloader
 
 
 Load
@@ -34,5 +35,12 @@ Plot
 
 .. automodule:: sampex.plot_sampex
    :members:
+   :undoc-members:
+   :show-inheritance:
+
+Download
+========
+.. automodule:: sampex.download
+   :members: Downloader
    :undoc-members:
    :show-inheritance:
