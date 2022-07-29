@@ -13,7 +13,7 @@ if "Paths" in settings:
     try:
         data_dir = settings["Paths"]["data_dir"]
     except KeyError as err:
-        continue
+        pass
 
     config = {"data_dir": data_dir}
 else:
