@@ -14,12 +14,11 @@ I've kept the library dependencies at a minimum: only numpy, pandas, and matplot
 
 Configuration
 -------------
-Before you can use `sampex` you'll need to
+You can configure this package so it knows the top-level directory to search for (or save) the data to.
 
-1. Download the SAMPEX `data`_. Currently `sampex` doesn't download data for you, so you will need to download it yourself (via wget or something similar) and save the data directory for step 2.
-2. Configure :python:`sampex` where to find that data. Run :python:`python3 -m sampex config` and answer the prompt. The configuration paths are accessible via the :python:`sampex.config` dictionary.
+.. code-block:: shell
 
-.. _data: https://izw1.caltech.edu/sampex/DataCenter/data.html
+   python3 -m sampex config
 
 ======================
 Developer Installation

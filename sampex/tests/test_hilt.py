@@ -19,7 +19,7 @@ def test_hilt_state1():
     assert h['time'][0] == np.datetime64('1992-10-04T00:00:05.000000000')
     assert h['time'][-1] == np.datetime64('1992-10-04T23:21:18.900000000')
 
-    with pytest.raises(IndexError):
+    with pytest.raises(KeyError):
         h['counts']
     return
 

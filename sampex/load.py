@@ -271,7 +271,10 @@ class PET:
     """
 
     def __init__(self, load_date, verbose=False) -> None:
-        self.load_date = load_date
+        if isinstance(load_date, str):
+            self.load_date = dateutil.parser.parse(load_date)
+        else:
+            self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
         return
@@ -325,17 +328,27 @@ class PET:
         """
         Recursively searches the sampex.config['data_dir']/pet/ directory for the file.
         """
-        file_name_glob = f"phrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["data_dir"], "pet").rglob(file_name_glob))
+        file_match = f"phrr{self.load_date_str}*"
+        local_files = list(pathlib.Path(sampex.config["data_dir"]).rglob(file_match))
         # 1 if there is just one file, and 2 if there is a file.txt and
         # file.txt.zip files.
-        assert len(matched_files) == 1, (
-            f"{len(matched_files)} matched PET files found."
-            f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "pet")}'
-            f"\nmatched files: {matched_files}"
-        )
-        return matched_files[0]
+        if len(local_files) in [1, 2]:
+            file_path = local_files[0]
+        elif len(local_files) == 0:
+            # File not found locally. Check online.
+            downloader = sampex.Downloader(
+                f'https://izw1.caltech.edu/sampex/DataCenter/DATA/PEThires/',
+                download_dir=sampex.config['data_dir'] / 'PET'
+                )
+            # Find the year directory that can be YYYY or YYYY.unverified.
+            downloader = downloader.ls(f'{self.load_date.year}*')[0]
+            matched_downloaders = downloader.ls(match=file_match)
+            file_path = matched_downloaders[0].download() 
+        else:
+            raise FileNotFoundError(
+                f'{len(local_files)} PET files found locally and online that match {file_match}.'
+                )
+        return file_path
 
 
 class LICA:
@@ -378,7 +391,10 @@ class LICA:
     """
 
     def __init__(self, load_date, verbose=False) -> None:
-        self.load_date = load_date
+        if isinstance(load_date, str):
+            self.load_date = dateutil.parser.parse(load_date)
+        else:
+            self.load_date = load_date
         self.load_date_str = date2yeardoy(self.load_date)
         self.verbose = verbose
         return
@@ -418,17 +434,23 @@ class LICA:
         """
         Recursively searches the sampex.config['data_dir']/pet/ directory for the file.
         """
-        file_name_glob = f"lhrr{self.load_date_str}*"
-        matched_files = list(pathlib.Path(sampex.config["data_dir"], "lica").rglob(file_name_glob))
-        # 1 if there is just one file, and 2 if there is a file.txt and
-        # file.txt.zip files.
-        assert len(matched_files) == 1, (
-            f"{len(matched_files)} matched LICA files found."
-            f"\nSearch string: {file_name_glob}"
-            f'\nSearch directory: {pathlib.Path(sampex.config["data_dir"], "lica")}'
-            f"\nmatched files: {matched_files}"
-        )
-        return matched_files[0]
+        file_match = f"lhrr{self.load_date_str}*"
+        local_files = list(pathlib.Path(sampex.config["data_dir"]).rglob(file_match))
+        if len(local_files) == 1:
+            file_path = local_files[0]
+        elif len(local_files) == 0:
+            # File not found locally. Check online.
+            downloader = sampex.Downloader(
+                f'https://izw1.caltech.edu/sampex/DataCenter/DATA/LICAhires/{self.load_date.year}/',
+                download_dir=sampex.config['data_dir'] / 'LICA'
+                )
+            matched_downloaders = downloader.ls(match=file_match)
+            file_path = matched_downloaders[0].download() 
+        else:
+            raise FileNotFoundError(
+                f'{len(local_files)} LICA files found locally and online that match {file_match}.'
+                )
+        return file_path
 
     def __getitem__(self, _slice):
         """

@@ -1,5 +1,5 @@
 # sampex
-Easily load and plot data from the Solar Anomalous and Magnetospheric Particle Explorer (SAMPEX) satellite that operated from 1992-2012. This library currently loads data from the `HILT`, `PET`, and `LICA` instruments, as well as the `attitide` files.  
+Easily load and plot data from the Solar Anomalous and Magnetospheric Particle Explorer (SAMPEX) satellite that operated from 1992-2012. This library currently downloads and loads data from the `HILT`, `PET`, and `LICA` instruments, as well as the `attitide` files.  
 
 [Documentation](https://sampex.readthedocs.io/en/latest/)
 
@@ -27,15 +27,12 @@ or
 python3 -m pip install -r requirements.txt 
 ```
 # Get started
-Before you can load the SAMPEX data you'll need to do two things:
+You can configure this package so it knows the top-level directory to search for (or save) the data to.
 
-1. Download the [SAMPEX data](https://izw1.caltech.edu/sampex/DataCenter/data.html) to a folder. wget is great for this. Write down the top-level SAMPEX data directory as you'll need it in step 2.
-2. Configure this package as it needs to know what directory to begin searching for the SAMPEX data. 
-
-    ```bash
-    python3 -m sampex config
-    ```
-    and in the prompt paste the top-level SAMPEX data directory.
+```bash
+python3 -m sampex config
+```
+and paste the top-level SAMPEX data directory in the prompt.
 
 ## Examples
 There are a handful of examples in the [documentation](https://sampex.readthedocs.io/en/latest/examples.html)

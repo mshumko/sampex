@@ -11,7 +11,9 @@ Welcome to sampex's documentation!
 .. _github: https://github.com/mshumko/sampex/
 .. _pypi: https://pypi.org/project/sampex/
 
-Easily load and plot data from the Solar Anomalous and Magnetospheric Particle Explorer (SAMPEX) satellite that operated from 1992-2012. This library currently loads data from the `HILT`, `PET`, and `LICA` instruments, as well as the `attitide` files.  
+Easily download, load and plot data from the Solar Anomalous and Magnetospheric Particle Explorer (SAMPEX) satellite that operated from 1992-2012. This library currently downloads and loads data from the `HILT`, `PET`, and `LICA` instruments, as well as the `attitide` files. If the files don't exist locally, `sampex` will search for them `online`_.
+
+.. _online: https://izw1.caltech.edu/sampex/DataCenter/data.html
 
 .. toctree::
    :maxdepth: 2
