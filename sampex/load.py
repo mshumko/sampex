@@ -558,15 +558,28 @@ class Attitude:
                 68: "Pitch",
                 71: "Att_Flag",
             }
-        # Open the attitude file stream
-        with open(self.attitude_file) as f:
-            # Skip the long header until the "BEGIN DATA" line
-            self._skip_header(f)
-            # Save the rest to a file using columns specified by the columns.keys() with the
-            # columns values for the column names.
-            self.data = pd.read_csv(
-                f, delim_whitespace=True, names=columns.values(), usecols=columns.keys()
-            )
+        # Open a zipped attitude file
+        if self.attitude_file.suffix == '.zip':
+            txt_name = self.attitude_file.stem
+            with zipfile.ZipFile(self.attitude_file, "r") as z:
+                with z.open(txt_name) as f:
+                    # Skip the long header until the "BEGIN DATA" line
+                    self._skip_header(f)
+                    # Save the rest to a file using columns specified by the columns.keys() with the
+                    # columns values for the column names.
+                    self.data = pd.read_csv(
+                        f, delim_whitespace=True, names=columns.values(), usecols=columns.keys()
+                    )
+        # Open an unzipped attitude file
+        else:
+            with open(self.attitude_file) as f:
+                # Skip the long header until the "BEGIN DATA" line
+                self._skip_header(f)
+                # Save the rest to a file using columns specified by the columns.keys() with the
+                # columns values for the column names.
+                self.data = pd.read_csv(
+                    f, delim_whitespace=True, names=columns.values(), usecols=columns.keys()
+                )
         self._parse_attitude_datetime(remove_old_time_cols)
         # Transform the longitudes from (0 -> 360) to (-180 -> 180).
         self.data["GEO_Long"] = np.mod(self.data["GEO_Long"] + 180, 360) - 180
@@ -650,7 +663,7 @@ class Attitude:
         names from the parsed header.
         """
         for i, line in enumerate(f):
-            if "BEGIN DATA" in line:
+            if "BEGIN DATA" in str(line):
                 # because for some reason the first attitude row has
                 # an extra column so skip the first "normal" row.
                 next(f)
@@ -719,26 +732,9 @@ def yeardoy2date(yeardoy: str):
 
 
 if __name__ == "__main__":
-    from datetime import datetime
-
-    import matplotlib.pyplot as plt
-
     import sampex
 
     day = datetime(1992, 10, 4)
 
     a = sampex.Attitude(day)
     a.load()
-    pass
-    # fig, ax = plt.subplots()
-    # colors = ['k', 'r', 'c', 'g']
-    # for i, color in enumerate(colors, start=1):
-    #     ax.step(h["time"], h[f"SSD{i}"], label=f"SSD{i}", where="post", c=color)
-    # ax.legend()
-    # ax.set_yscale('log')
-    # ax.set_xlim(
-    #     datetime(1992, 10, 4, 3, 58, 25), 
-    #     datetime(1992, 10, 4, 3, 58, 40))
-    # ax.set_ylim(500, None)
-    # plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
-    # plt.show()
