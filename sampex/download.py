@@ -54,10 +54,10 @@ class Downloader:
         matched_hrefs = self._search_hrefs(self.url, match=match)
         cls = type(self)
         downloaders = [None]*len(matched_hrefs)
-        for matched_href in matched_hrefs:
+        for i, matched_href in enumerate(matched_hrefs):
             new_url = urllib.parse.urljoin(self.url, matched_href, allow_fragments=True)
-        # downloaders = [cls(self.url + '.') for matched_href in matched_hrefs]
-        return matched_hrefs
+            downloaders[i] = cls(new_url)
+        return downloaders
 
     # def download(self, save_dir, overwrite=False) -> None:
     #     """
@@ -142,10 +142,16 @@ class Downloader:
             )
         return matched_hrefs
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__qualname__}(' + self.url + ')'
+    
+    def __str__(self) -> str:
+        return f'{self.__class__.__qualname__} with url={self.url}'
+
 if __name__ == '__main__':
     d = Downloader(
         'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/'
         )
     # d.find_file(['2014', '05', '05', 'gill*', 'ut05', '20140505_0505_gill*.pgm.gz'])
-    paths = d.ls(match='*')
+    paths = d.ls(match='*.txt*')
     d.download() 
