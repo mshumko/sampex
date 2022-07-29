@@ -30,5 +30,6 @@ from sampex.load import HILT
 from sampex.load import PET
 from sampex.load import LICA
 from sampex.load import Attitude
+from sampex.download import Downloader
 from sampex.load import date2yeardoy
 from sampex.load import yeardoy2date

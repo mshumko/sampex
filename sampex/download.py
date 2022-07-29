@@ -115,6 +115,7 @@ class Downloader:
             r = requests.get(self.url)
             with open(download_path, 'wb') as f:
                 f.write(r.content)
+            print(f'Downloaded {file_name}.')
         return download_path
 
     def name(self):
@@ -173,4 +174,4 @@ if __name__ == '__main__':
         )
     # d.find_file(['2014', '05', '05', 'gill*', 'ut05', '20140505_0505_gill*.pgm.gz'])
     paths = d.ls(match='*.txt*')
-    paths[0].download() 
+    paths[0].download(stream=True) 

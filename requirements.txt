@@ -4,6 +4,8 @@
 matplotlib
 numpy
 pandas
+beautifulsoup4
+requests
 
 # For development
 bump2version
