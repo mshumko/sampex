@@ -92,7 +92,6 @@ class HILT:
             raise FileNotFoundError(
                 f'{len(local_files)} HILT files found locally and online that match {file_match}.'
                 )
-        
         return
 
     def load(self, extract=False):
@@ -515,7 +514,10 @@ class Attitude:
     """
 
     def __init__(self, load_date, verbose=False):
-        self.load_date = load_date
+        if isinstance(load_date, str):
+            self.load_date = dateutil.parser.parse(load_date)
+        else:
+            self.load_date = load_date
         self.load_date_str = date2yeardoy(load_date)
         self.verbose = verbose
 
@@ -594,8 +596,21 @@ class Attitude:
         Use pathlib.rglob to find the attitude file that contains 
         the DOY from self.load_date
         """
+        self.file_match = "PSSet_6sec_*_*.txt"
+        self.attitude_file = self._find_local_file()
+
+        if self.attitude_file is None:  # Download from the internet
+            self.attitude_file = self._download_remote_file()
+        if self.attitude_file is None: # At this stage we have not found a file.
+            raise FileNotFoundError
+        return self.attitude_file
+
+    def _find_local_file(self):
+        """
+        Look for a file on the local computer
+        """
         attitude_files = sorted(
-            list(pathlib.Path(sampex.config["data_dir"], "attitude").rglob("PSSet_6sec_*_*.txt"))
+            list(pathlib.Path(sampex.config["data_dir"]).rglob(self.file_match))
         )
         start_end_dates = [re.findall(r"\d+", str(f.name))[1:] for f in attitude_files]
 
@@ -605,12 +620,28 @@ class Attitude:
         for f, (start_date, end_date) in zip(attitude_files, start_end_dates):
             if (int(start_date) <= current_date_int) and (int(end_date) >= current_date_int):
                 self.attitude_file = f
-        if self.attitude_file is None:
-            raise ValueError(
-                f'A matched file not found in {pathlib.Path(sampex.config["data_dir"], "attitude")} '
-                f"for YEARDOY={self.load_date_str}"
-            )
         return self.attitude_file
+
+    def _download_remote_file(self):
+        """
+        Look for, and download the attitude file from the internet.
+        """
+        downloader = sampex.Downloader(
+            f'https://izw1.caltech.edu/sampex/DataCenter/DATA/PSSet/Text/',
+            download_dir=sampex.config['data_dir'] / 'Attitude'
+            )
+        matched_downloaders = downloader.ls(match=self.file_match)
+        filenames = [d.name() for d in matched_downloaders]
+        start_end_dates = [re.findall(r"\d+", f)[1:] for f in filenames]
+
+        current_date_int = int(self.load_date_str)
+        self.attitude_file = None
+
+        for downloader, (start_date, end_date) in zip(matched_downloaders, start_end_dates):
+            if (int(start_date) <= current_date_int) and (int(end_date) >= current_date_int):
+                self.attitude_file = downloader.download(stream=True)
+        return self.attitude_file
+
 
     def _skip_header(self, f):
         """ 
@@ -696,18 +727,18 @@ if __name__ == "__main__":
 
     day = datetime(1992, 10, 4)
 
-    h = sampex.HILT(day)
-    h.load()
-
-    fig, ax = plt.subplots()
-    colors = ['k', 'r', 'c', 'g']
-    for i, color in enumerate(colors, start=1):
-        ax.step(h["time"], h[f"SSD{i}"], label=f"SSD{i}", where="post", c=color)
-    ax.legend()
-    ax.set_yscale('log')
-    ax.set_xlim(
-        datetime(1992, 10, 4, 3, 58, 25), 
-        datetime(1992, 10, 4, 3, 58, 40))
-    ax.set_ylim(500, None)
-    plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
-    plt.show()
+    a = sampex.Attitude(day)
+    a.load()
+    pass
+    # fig, ax = plt.subplots()
+    # colors = ['k', 'r', 'c', 'g']
+    # for i, color in enumerate(colors, start=1):
+    #     ax.step(h["time"], h[f"SSD{i}"], label=f"SSD{i}", where="post", c=color)
+    # ax.legend()
+    # ax.set_yscale('log')
+    # ax.set_xlim(
+    #     datetime(1992, 10, 4, 3, 58, 25), 
+    #     datetime(1992, 10, 4, 3, 58, 40))
+    # ax.set_ylim(500, None)
+    # plt.suptitle(f"SAMPEX-HILT | {day.date()} ({sampex.date2yeardoy(day)})")
+    # plt.show()

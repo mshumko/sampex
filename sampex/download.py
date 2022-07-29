@@ -21,13 +21,14 @@ class Downloader:
 
         Example
         -------
-        d = Download(
-            'https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/stream0/'
-            )
-        d.find_file(
-            ['2014', '05', '05', 'gill*', 'ut05', '20140505_0505_gill*.pgm.gz']
-            )
-        d.download()
+        | import sampex
+        |
+        | d = sampex.Downloader(
+        |     'https://izw1.caltech.edu/sampex/DataCenter/DATA/HILThires/State4/',
+        |     download_dir=tmp_dir.name
+        | )
+        | paths = d.ls(match='*.txt*')
+        | path = paths[0].download(stream=False)
         """
         self.url = url
         self.download_dir=download_dir
