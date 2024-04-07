@@ -568,7 +568,7 @@ class Attitude:
                     # Save the rest to a file using columns specified by the columns.keys() with the
                     # columns values for the column names.
                     self.data = pd.read_csv(
-                        f, delim_whitespace=True, names=columns.values(), usecols=columns.keys()
+                        f, sep='\\s+', names=columns.values(), usecols=columns.keys()
                     )
         # Open an unzipped attitude file
         else:
@@ -578,7 +578,7 @@ class Attitude:
                 # Save the rest to a file using columns specified by the columns.keys() with the
                 # columns values for the column names.
                 self.data = pd.read_csv(
-                    f, delim_whitespace=True, names=columns.values(), usecols=columns.keys()
+                    f, sep='\\s+', names=columns.values(), usecols=columns.keys()
                 )
         self._parse_attitude_datetime(remove_old_time_cols)
         # Transform the longitudes from (0 -> 360) to (-180 -> 180).
