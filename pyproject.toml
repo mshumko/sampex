@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sampex"
-version = "1.0.0"
+version = "1.1.0"
 description = "Programs to load and plot the SAMPEX satellite data."
 readme = "README.md"
 authors = [
