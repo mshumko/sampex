@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sampex"
+version = "1.0.0"
+description = "Programs to load and plot the SAMPEX satellite data."
+readme = "README.md"
+authors = [
+    {name="Mike Shumko", email="msshumko@gmail.com"}
+    ]
+keywords = ["data science", "SAMPEX", "satellite", "HILT", "PET", "LICA"]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+license = "MIT"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pandas > 2.0.0",
+    "beautifulsoup4",
+    "requests"
+]
+
+[project.optional-dependencies]
+dev = [
+    "bump2version",
+    "black",
+    "pytest",
+    "sphinx-copybutton",
+    "furo",
+    "nbsphinx",
+    ]
+
+[project.urls]
+Documentation = "https://sampex.readthedocs.io/en/latest/"
+Repository = "https://github.com/mshumko/sampex"
+Issues = "https://github.com/mshumko/sampex/issues"
+
+[project.scripts]
+plot_sampex = "sampex.plot_sampex:main"
